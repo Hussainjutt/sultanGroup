@@ -6,7 +6,9 @@ import Banner from "./components/banner";
 import Sidebar from "./components/sidebar";
 
 const Index = ({ children, bg = null, heading }) => {
-  window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  }, []);
   const [isOpen, setOpen] = useState(false);
   return (
     <div>

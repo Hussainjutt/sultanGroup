@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Layout from "../../layout";
 import Categories from "./components/categories";
 import Blog from "./components/blog";
+import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
   background-color: #e8e8e847;
@@ -40,11 +41,20 @@ const Link = styled.p`
 `;
 const Index = () => {
   const [category, setCategory] = useState(null);
+  const navigate = useNavigate();
   return (
     <Layout>
       <Container>
         <div className="d-flex">
-          <Link onClick={() => setCategory(null)}>Blogs</Link>&nbsp;
+          <Link
+            onClick={() => {
+              setCategory(null);
+              navigate("/blogs");
+            }}
+          >
+            Blogs
+          </Link>
+          &nbsp;
           {category && (
             <>
               {" "}
@@ -54,7 +64,7 @@ const Index = () => {
           )}
         </div>
         <Wrapper>
-          <Categories setCategory={setCategory} category={category} />
+          <Categories setCategory={setCategory} />
           <Blog category={category?.toLowerCase()} />
         </Wrapper>
       </Container>

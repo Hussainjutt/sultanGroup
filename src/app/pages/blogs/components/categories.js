@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import { doc, onSnapshot } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import CheckBox from "../../../components/checkbox";
-
+import { db } from "../../../../firebase";
 const Container = styled.div`
   align-self: start;
   background-color: #fff;
@@ -11,6 +12,9 @@ const Container = styled.div`
   min-height: 60vh;
   padding: 2rem;
   box-shadow: 0px 0px 8px 2px rgba(66, 64, 64, 0.26);
+  @media (max-width: 588px) {
+    max-width: 100%;
+  }
 `;
 const H1 = styled.h1`
   font-weight: 600;
@@ -36,19 +40,69 @@ const Text = styled.p`
   font-family: cursive;
   cursor: pointer;
 `;
-const Categories = ({ setCategory, category }) => {
-  const [active, setActive] = useState(null);
+const Categories = ({ setCategory }) => {
+  const [options, setOptions] = useState([]);
+  const location = useLocation();
+  console.log(location.pathname);
+  const navigate = useNavigate();
+  const CheckBox = ({ active, path }) => {
+    const Container = styled.p`
+      width: 16px;
+      height: 16px;
+      border: 1.2px solid #2abc14;
+      border-radius: 4px;
+      cursor: pointer;
+      padding: 2px;
+      margin: 0;
+    `;
+    const Box = styled.p`
+      width: 10px;
+      height: 10px;
+      background-color: ${(props) => props?.change && "#0DA8DF"};
+      margin: 0;
+      border-radius: 50%;
+    `;
+    return (
+      <Container>
+        <Box change={active}></Box>
+      </Container>
+    );
+  };
+  useEffect(() => {
+    const unSub = onSnapshot(doc(db, "blogs", "category"), (doc) => {
+      setOptions(doc.data()?.data);
+    });
+    return () => {
+      unSub();
+    };
+  }, []);
   return (
     <Container>
       <H1>Categories</H1>
-      {["Latest News", "Case Study"].map((el, i) => (
+      {options.map((el, i) => (
         <Item
           onClick={() => {
-            setCategory(el);
+            navigate(
+              `/blogs/:${el?.label?.toLowerCase().replaceAll(/\s/g, "")}`
+            );
+            setCategory(el?.label);
           }}
         >
-          <CheckBox active={category} i={el} setActive={setCategory} />
-          <Text active={category === el}>{el}</Text>
+          <CheckBox
+            active={
+              location.pathname ===
+              `/blogs/:${el?.label?.toLowerCase().replaceAll(/\s/g, "")}`
+            }
+            path={`/blogs/:${el?.label?.toLowerCase()}`}
+          />
+          <Text
+            active={
+              location.pathname ===
+              `/blogs/:${el?.label?.toLowerCase().replaceAll(/\s/g, "")}`
+            }
+          >
+            {el?.label}
+          </Text>
         </Item>
       ))}
     </Container>

@@ -12,8 +12,7 @@ const Box = styled.div`
 `;
 const Text = styled.p`
   line-height: 22px;
-  letter-spacing: 1px;
-  text-align: justify;
+  letter-spacing: 1px; ;
 `;
 const H1 = styled.h1`
   font-weight: 600;

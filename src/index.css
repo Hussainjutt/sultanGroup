@@ -14,11 +14,11 @@ body::-webkit-scrollbar {
 }
 
 body::-webkit-scrollbar-track {
-  background: #00a8e8;
+  background: #ccc;
 }
 
 body::-webkit-scrollbar-thumb {
-  background: #27be18;
+  background: #1c1c1c;
   border-radius: 4px;
 }
 .tox-tinymce {
@@ -48,4 +48,8 @@ input:disabled {
 }
 button:disabled {
   cursor: not-allowed !important;
+}
+.blogs-dropDown:hover {
+  background-color: #eff0f2;
+  border-radius: 4px;
 }

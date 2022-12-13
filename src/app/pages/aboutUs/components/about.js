@@ -6,14 +6,14 @@ const Container = styled.div`
 `;
 const Box = styled.div`
   box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.17);
+  background-color: #fff;
   padding: 1rem 2rem 2rem 2rem;
   position: relative;
   border-radius: 0.75rem;
 `;
 const Text = styled.p`
   line-height: 22px;
-  letter-spacing: 1px;
-  text-align: justify;
+  letter-spacing: 1px; ;
 `;
 const H1 = styled.h1`
   font-weight: 600;

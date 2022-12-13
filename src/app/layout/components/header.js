@@ -26,7 +26,7 @@ const Logo = styled.img`
   object-fit: fill;
   // margin: ${(props) => props.main && "auto"};
   display: ${(props) => props.main && "none"};
-  @media (max-width: 856px) {
+  @media (max-width: 950px) {
     display: ${(props) => (props.main ? "block" : "none")};
   }
 `;
@@ -51,15 +51,13 @@ const Menu = styled.ul`
   justify-content: flex-start;
   padding: 0 6%;
   width: 100%;
-  flex-wrap: wrap;
+  // flex-wrap: wrap;
   grid-gap: 2rem;
   align-items: center;
-  margin-left: -40px;
-  margin-bottom: 0;
+  margin: 0;
   font-family: "Muli";
   font-weight: 600;
   @media (max-width: 1200px) {
-    padding: 19px 0;
     justify-content: center;
   }
   @media (max-width: 856px) {
@@ -72,12 +70,10 @@ const Item = styled.li`
   border-radius: 2px;
   position: relative;
   color: ${(props) => props.active && "#34c11f"};
-
+  white-space: nowrap;
   &:hover {
     color: #34c11f;
     transition: color 300ms ease-out;
-    transform: ${(props) => !props.isLogo && "scale(1.17)"};
-    transition: transform 300ms ease-out;
   }
   &:hover > p {
     width: 100%;
@@ -89,6 +85,9 @@ const Item = styled.li`
     margin: 0;
     position: relative;
     bottom: 0px;
+  }
+  @media (max-width: 950px) {
+    display: ${(props) => props.isLogo && "none"};
   }
 `;
 const Icon = styled.span`
@@ -136,11 +135,11 @@ const Li = styled.span`
   cursor: pointer;
   margin: 4px 0;
   latter-spacing: 2px;
-  // max-width: 200px;
   position: relative;
   right: 0;
   &:hover {
-    transform: scale(1.1);
+    transform: scale(1.06);
+    transition: transform 300ms ease-out;
     color: #01a8e7;
     transition: transform 333ms ease-out;
   }
@@ -266,9 +265,12 @@ const Header = ({ setOpen }) => {
             <Grid>
               {show?.data.map((el, i) => (
                 <>
-                  <Li onClick={() => navigate(`${el?.route}:${el.title}`)}>
+                  <Li
+                    onClick={() => navigate(`${el?.route}:${el.title}`)}
+                    className="position-relative"
+                  >
                     {el?.title}{" "}
-                    <Arrow>
+                    <Arrow className="position-absolute">
                       <BsArrowRightShort />
                     </Arrow>
                   </Li>

@@ -13,6 +13,9 @@ const Container = styled.div`
   min-height: 60vh;
   padding: 2rem;
   box-shadow: 0px 0px 8px 2px rgba(66, 64, 64, 0.26);
+  @media (max-width: 588px) {
+    max-width: 100%;
+  }
 `;
 const H1 = styled.h1`
   font-weight: 600;

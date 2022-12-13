@@ -20,6 +20,7 @@ const Card = styled.div`
   box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.17);
   border-radius: 0.75rem;
   padding: 1.5rem;
+  background-color: #fff;
 `;
 const H1 = styled.h1`
   font-weight: 600;

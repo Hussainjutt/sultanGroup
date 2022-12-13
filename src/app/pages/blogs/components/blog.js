@@ -10,7 +10,7 @@ import Img5 from "../../../assets/image/blogs/5.jpeg";
 import Img6 from "../../../assets/image/blogs/6.jpg";
 import Img7 from "../../../assets/image/blogs/7.png";
 import { FcInfo } from "react-icons/fc";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../../../../firebase";
 const Container = styled.div``;
@@ -111,7 +111,7 @@ const Prev = styled.img`
   border-radius: 9px;
   border: 4px solid transparent;
 `;
-const Blogs = ({ category }) => {
+const Blogs = () => {
   const [show, setShow] = useState(null);
   const [data, setData] = useState([]);
   const [Loader, setLoader] = useState(false);
@@ -125,18 +125,32 @@ const Blogs = ({ category }) => {
     string = `${m}.${day}.${year}`;
     return string;
   };
+  const category = useParams();
+  function isEmpty(obj) {
+    for (var prop in obj) {
+      if (obj.hasOwnProperty(prop)) return false;
+    }
+    return true;
+  }
+  let empty = isEmpty(category);
   useEffect(() => {
     const unSub = onSnapshot(doc(db, "blogs", "allBlogs"), (doc) => {
       setLoader(true);
-      if (category?.toLowerCase()) {
-        let dummy = doc
-          .data()
-          .data?.filter(
-            (el) => el?.category?.toLowerCase() === category?.toLowerCase()
-          );
-        setData(dummy);
+      if (empty) {
+        setData(doc?.data()?.data);
       } else {
-        setData(doc?.data().data);
+        if (category) {
+          let q = category?.category?.slice(1)?.toLowerCase();
+          console.log(q);
+          let dummy = doc
+            .data()
+            .data?.filter(
+              (el) => el?.category?.toLowerCase().replaceAll(/\s/g, "") === q
+            );
+          setData(dummy);
+        } else {
+          setData(doc?.data().data);
+        }
       }
       setTimeout(() => {
         setLoader(false);
@@ -150,6 +164,10 @@ const Blogs = ({ category }) => {
     <Wrapper>
       {Loader ? (
         <Spinner variant="info" animation="border" size="lg" />
+      ) : data.length === 0 ? (
+        <h1 style={{ textAlign: "center", marginTop: "3rem" }}>
+          No data Found
+        </h1>
       ) : (
         data?.map((el, i) => (
           <Card
