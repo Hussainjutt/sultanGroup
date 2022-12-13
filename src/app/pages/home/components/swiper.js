@@ -63,10 +63,11 @@ const Swiper = () => {
             style={{
               backgroundImage: `url(${el?.img})`,
               height: "100vh",
+              width: "100%",
+              // background: "top center",
+              backgroundPosition: "top center",
               backgroundSize: "cover",
-              display: "flex",
-              justifyContent: "flex-end",
-              alignItems: "center",
+              backgroundRepeat: "repeat",
             }}
           >
             <Text>{el?.text}</Text>
