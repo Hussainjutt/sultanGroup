@@ -1,0 +1,51 @@
+* {
+  box-sizing: border-box;
+  font-family: "Comfortaa";
+}
+body {
+  margin: 0;
+  font-family: "Comfortaa";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f6f6f6 !important;
+}
+body::-webkit-scrollbar {
+  width: 8px;
+}
+
+body::-webkit-scrollbar-track {
+  background: #00a8e8;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: #27be18;
+  border-radius: 4px;
+}
+.tox-tinymce {
+  border: none !important;
+}
+.dnCLzM {
+  width: 100% !important;
+  border: dashed 2px #27be18 !important;
+}
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+.swiper-pagination-progressbar .swiper-pagination-progressbar-fill {
+  background: linear-gradient(45deg, #00a6e2, #27be18) !important;
+}
+.swiper-button-next:after,
+.swiper-button-prev:after {
+  color: #27be18 !important;
+}
+.Comment-box label {
+  padding: 1rem 1.5rem !important;
+}
+input:disabled {
+  cursor: not-allowed !important;
+  background-color: #f2f2f2 !important;
+}
+button:disabled {
+  cursor: not-allowed !important;
+}
