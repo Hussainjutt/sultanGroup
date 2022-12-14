@@ -1,30 +1,10 @@
 import React from "react";
 import DashBoard from "../../adminDashboard";
+import Cards from "./cards";
 const Index = () => {
   return (
-    <DashBoard heading={"Main"}>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
-      <h1>kiji</h1>
+    <DashBoard heading={"DashBoard"}>
+      <Cards />
     </DashBoard>
   );
 };

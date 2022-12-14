@@ -41,13 +41,9 @@ const CommentBox = () => {
           placeholder="name@example.com"
         />
       </FloatingLabel>
-      <Row>
+      <Row className="mb-4">
         <Col className="col-12 col-sm-6">
-          <FloatingLabel
-            controlId="floatingInput"
-            label="Name"
-            className="mb-3"
-          >
+          <FloatingLabel controlId="floatingInput" label="Name">
             <Form.Control type="text" placeholder="name@example.com" />
           </FloatingLabel>
         </Col>
@@ -57,7 +53,7 @@ const CommentBox = () => {
           </FloatingLabel>
         </Col>
       </Row>
-      <Button variant="dark w-25">Submit</Button>
+      <Button variant="dark w-50">Submit</Button>
     </Container>
   );
 };
