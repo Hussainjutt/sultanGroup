@@ -6,7 +6,8 @@ import { BsPeople } from "react-icons/bs";
 import { AiOutlineShop } from "react-icons/ai";
 import { IoIosArrowBack, IoIosArrowDown } from "react-icons/io";
 import Logo from "../../assets/icon/main-icon.png";
-import { PropTypes } from "prop-types";
+import { db } from "../../../firebase";
+import { doc, onSnapshot } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
@@ -147,17 +148,36 @@ const Menu = [
 ];
 const Sidebar = ({ setOpen, isOpen }) => {
   const [show, setShow] = useState(null);
+  const [data, setData] = useState({});
   const navigate = useNavigate();
+  useEffect(() => {
+    const unSub = onSnapshot(doc(db, "auth", "admin"), (doc) => {
+      setData(doc?.data());
+    });
+    return () => {
+      unSub();
+    };
+  }, []);
   return (
     <Container>
       <Aside show={isOpen}>
         <Header onClick={() => navigate("/profile")}>
           <img
-            src="https://cashier-bdevs.vercel.app/assets/img/icon/watson.png"
+            src={
+              data.profileImage
+                ? data.profileImage
+                : "https://cashier-bdevs.vercel.app/assets/img/icon/watson.png"
+            }
             className="rounded-circle border"
+            style={{
+              width: "50px",
+              height: "50px",
+              backgroundColor: "#ccc",
+              objectFit: "fill",
+            }}
           />
           <div>
-            <p className="m-0">Sultan group</p>
+            <p className="m-0">{data?.name ? data.name : "Sultan group"}</p>
             <span>Admin</span>
           </div>
         </Header>

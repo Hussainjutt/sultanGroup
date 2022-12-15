@@ -6,13 +6,20 @@ import { MdDeleteOutline } from "react-icons/md";
 import styled from "styled-components";
 import { Button, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { Popconfirm } from "antd";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../../../../firebase";
+import { toast } from "react-toastify";
 
 const Container = styled.div`
   position: relative;
   width: 100%;
   max-width: 18em;
   height: 22em;
-  background: url(https://cache.desktopnexus.com/thumbseg/25/25727-bigthumbnail.jpg)
+  background: url(${(props) =>
+      props.image
+        ? props.image
+        : "https://cache.desktopnexus.com/thumbseg/25/25727-bigthumbnail.jpg"})
     no-repeat;
   background-size: 22em 30em;
   box-shadow: 3px 3px 20px rgba(0, 0, 0, 0.5);
@@ -125,38 +132,51 @@ const Box = styled.div`
   font-size: 1.2em;
   padding: 0 2em;
 `;
-const BlogCard = () => {
+const BlogCard = ({ data, arr }) => {
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
+  const getDate = () => {
+    let string = "";
+    let d = data?.date?.toDate();
+    let m = d.toLocaleString("default", { month: "short" });
+    let day = d?.getDate();
+    let year = d?.getFullYear();
+    string = `${m}.${day}.${year}`;
+    return string;
+  };
+  let date = "";
+  if (data?.date) {
+    date = getDate();
+  }
+  const handleDelete = async (id) => {
+    try {
+      function removeObjectWithId(arr, id) {
+        const objWithIdIndex = arr.findIndex((obj) => obj.id === id);
+        arr.splice(objWithIdIndex, 1);
+        return arr;
+      }
+      let newData = removeObjectWithId(arr, id);
+      await updateDoc(doc(db, "products", "allProducts"), {
+        data: [...newData],
+      });
+      toast.success(`Product deleted successfully`);
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
   return (
     <>
-      <Container>
+      <Container image={data?.image}>
         <Header>
-          <H3>SPRING FEVER</H3>
+          <H3>Admin</H3>
           <hr />
-          <Intro>Latest News</Intro>
+          <Intro>{data?.category}</Intro>
         </Header>
         <Info className="info">
-          <span>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim.
-          </span>
+          <span>{data?.title}</span>
         </Info>
         <Footer>
           <Box className="d-flex justify-content-start  gap-3">
-            <span>
-              <AiOutlineComment
-                style={{
-                  color: "#00A8E8",
-                  fontSize: "20px",
-                  position: "relative",
-                  top: "-2px",
-                }}
-              />
-              &nbsp;
-              <span style={{ color: "#27BF0F" }}>12</span>
-            </span>
             <span>
               <CiCalendarDate
                 style={{
@@ -167,7 +187,7 @@ const BlogCard = () => {
                 }}
               />
               &nbsp;
-              <span style={{ color: "#27BF0F" }}>03.12.2015</span>
+              <span style={{ color: "#27BF0F" }}>{date}</span>
             </span>
           </Box>
         </Footer>
@@ -180,7 +200,7 @@ const BlogCard = () => {
             top: "-4px",
             right: "7px",
           }}
-          onClick={() => navigate("/create-blog")}
+          onClick={() => navigate(`/edit-product/:${data?.id}`)}
         >
           <TbEdit />
         </span>
@@ -196,21 +216,28 @@ const BlogCard = () => {
         >
           <MdDeleteOutline />
         </span>
+        <Modal
+          centered={true}
+          size="sm"
+          show={show}
+          onHide={() => setShow(false)}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Confirmation</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <h3>
+              Are you sure to <b>Delete</b> this Blog
+            </h3>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button>Cancel</Button>
+            <Button variant="danger" onClick={() => handleDelete(data?.id)}>
+              Confirm
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </Container>
-      <Modal show={show} onHide={() => setShow(false)}>
-        <Modal.Header closeButton>Confirmation</Modal.Header>
-        <Modal.Body>
-          <h2>Are you sure to delete this blog</h2>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="dark" onClick={() => setShow(false)}>
-            Cancel
-          </Button>
-          <Button variant="danger" onClick={() => setShow(false)}>
-            Confirm
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </>
   );
 };

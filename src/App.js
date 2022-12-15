@@ -14,12 +14,13 @@ import BlogsDraft from "./app/pages/blogsInfo/draft";
 import CreateProduct from "./app/pages/productsInfo/createProduct";
 import Login from "./app/pages/auth/login";
 import Profile from "./app/pages/profile";
-import AllProducts from "./app/pages/productsInfo/allProducts";
+import AllProducts from "./app/pages/productsInfo/AllProducts";
 import ProductDraft from "./app/pages/productsInfo/draft";
 import Gallery from "./app/pages/gallery";
 import TermsConditions from "./app/pages/terms&conditions";
 import Faqs from "./app/pages/faqs";
 import PrivacyPolicy from "./app/pages/privacyPolicy";
+import ContactList from "./app/pages/contactList";
 import { Spinner } from "react-bootstrap";
 import { ToastContainer } from "react-toastify";
 
@@ -90,6 +91,22 @@ const App = () => {
             }
           />
           <Route
+            path="/edit-blog/:id"
+            element={
+              <ProtectedRoute>
+                <CreateBlog forEdit={true} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/edit-blog:id"
+            element={
+              <ProtectedRoute>
+                <CreateBlog forDraft={true} forEdit={true} />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/all-products"
             element={
               <ProtectedRoute>
@@ -102,6 +119,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <CreateProduct />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/edit-product/:id"
+            element={
+              <ProtectedRoute>
+                <CreateProduct forEdit={true} />
               </ProtectedRoute>
             }
           />
@@ -127,6 +152,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <Gallery />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/contact-list"
+            element={
+              <ProtectedRoute>
+                <ContactList />
               </ProtectedRoute>
             }
           />

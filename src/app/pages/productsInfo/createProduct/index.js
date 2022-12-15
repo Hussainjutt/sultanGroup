@@ -5,18 +5,9 @@ import styled from "styled-components";
 import { FileUploader } from "react-drag-drop-files";
 import { MdOutlineUpload } from "react-icons/md";
 import { BsImageFill } from "react-icons/bs";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../../../adminDashboard";
-import {
-  Button,
-  Modal,
-  Form,
-  Row,
-  FormControl,
-  DropdownButton,
-  InputGroup,
-  Dropdown,
-} from "react-bootstrap";
+import { Button, Modal, Form, Row, FormControl } from "react-bootstrap";
 import { MdOutlinePublic } from "react-icons/md";
 import { TiCancelOutline } from "react-icons/ti";
 import { BiSave } from "react-icons/bi";
@@ -78,7 +69,7 @@ const selectStyles = {
     borderRadius: "0 0 4px 4px",
   }),
 };
-const AddNew = () => {
+const AddNew = ({ forDraft, forEdit }) => {
   const editorRef = useRef(null);
   const [image, setImage] = useState({ prev: "", file: "", isUrl: false });
   const [show, setShow] = useState(false);
@@ -88,15 +79,16 @@ const AddNew = () => {
     image: "",
     content: null,
     category: "",
-    pricing: "",
+    comments: [],
   });
   const [category, setCategory] = useState("");
   const [modal, setModal] = useState(false);
   const [options, setOptions] = useState([]);
-  const [pricing, setPricing] = useState({ symbol: "Pricing", value: "" });
+  const [isDraft, setDraft] = useState(false);
+  const param = useParams();
   const addCategory = async () => {
     try {
-      await updateDoc(doc(db, "products", "category"), {
+      await updateDoc(doc(db, "blogs", "category"), {
         data: arrayUnion({
           label: category.replace(/(\w)(\w*)/g, function (g0, g1, g2) {
             return g1.toUpperCase() + g2.toLowerCase();
@@ -112,13 +104,15 @@ const AddNew = () => {
       toast.error(error.message);
     }
   };
-  const getData = () => {
-    setData({
-      ...data,
-      image: image,
-      pricing: pricing.symbol + " " + pricing.value,
-    });
-    setPrev(true);
+  const getData = (val) => {
+    if (editorRef.current) {
+      setData({
+        ...data,
+        image: image,
+        content: editorRef.current.getContent(),
+      });
+      setPrev(true);
+    }
   };
   const navigate = useNavigate();
   useEffect(() => {
@@ -130,12 +124,35 @@ const AddNew = () => {
     };
   }, []);
   useEffect(() => {
-    if (!data.content) {
-      editorRef?.current?.setContent("");
+    if (param?.id) {
+      const unSub = onSnapshot(
+        doc(db, "products", forDraft ? "draft" : "allProducts"),
+        (doc) => {
+          let data = doc
+            .data()
+            ?.data.filter((el) => el?.id === param?.id?.slice(1));
+          let arr = data[0];
+          setData({
+            ...data,
+            title: arr?.title,
+            category: arr?.category,
+          });
+          editorRef?.current?.setContent(arr?.content);
+          setImage({
+            ...image,
+            prev: arr?.image,
+            isUrl: true,
+            file: arr?.image,
+          });
+        }
+      );
+      return () => {
+        unSub();
+      };
     }
-  }, [data.content]);
+  }, [param?.id, editorRef]);
   return (
-    <Layout heading={"Create Product"}>
+    <Layout heading={forEdit ? "Edit Product" : "Create Product"}>
       <Container>
         <div className="d-flex justify-content-between gap-3  mb-3">
           <Button onClick={() => navigate("/all-products")}>
@@ -145,13 +162,25 @@ const AddNew = () => {
             &nbsp;Back
           </Button>
           <div className="d-flex justify-content-end gap-3">
-            <Button variant="primary" onClick={() => getData()}>
+            <Button
+              variant="primary"
+              onClick={() => {
+                setDraft(false);
+                getData();
+              }}
+            >
               Publish{" "}
               <MdOutlinePublic
                 style={{ fontSize: "20px", position: "relative", top: "-2px" }}
               />
             </Button>
-            <Button variant="dark">
+            <Button
+              variant="dark"
+              onClick={() => {
+                setDraft(true);
+                getData();
+              }}
+            >
               Draft{" "}
               <BiSave
                 style={{ fontSize: "20px", position: "relative", top: "-2px" }}
@@ -183,34 +212,24 @@ const AddNew = () => {
                   setData({ ...data, title: e.target.value });
                 }}
               />
-              <InputGroup className="mb-3 w-25">
-                <DropdownButton
-                  variant="outline-secondary"
-                  title={pricing.symbol}
-                  id="input-group-dropdown-1"
-                >
-                  {["$", "€", "Rs", "SR", "¥"].map((el, i) => (
-                    <Dropdown.Item
-                      key={i}
-                      onClick={() => setPricing({ ...pricing, symbol: el })}
-                    >
-                      {el}
-                    </Dropdown.Item>
-                  ))}
-                </DropdownButton>
-                <Form.Control
-                  placeholder="Value"
-                  type="number"
-                  value={pricing?.value}
-                  onChange={(e) =>
-                    setPricing({ ...pricing, value: e.target.value })
+              <Select
+                styles={selectStyles}
+                className="w-25"
+                placeholder={"Category"}
+                value={
+                  param?.id &&
+                  data?.category && {
+                    label: data?.category,
+                    value: data?.category,
                   }
-                />
-              </InputGroup>
+                }
+                onChange={(e) => setData({ ...data, category: e.label })}
+                options={options}
+              />
             </div>
             <div className="d-flex justify-content-between">
               <div className="d-flex align-items-start gap-1">
-                <h2 className="m-0 px-3">Product Image - </h2>
+                <h2 className="m-0 px-3">Feature Image - </h2>
                 <Button
                   variant={image.file ? "primary" : "dark"}
                   className="py-2"
@@ -219,16 +238,9 @@ const AddNew = () => {
                   {image.file ? "Change" : "Upload"} Image <MdOutlineUpload />
                 </Button>
               </div>
-              <div className="px-3 d-flex align-items-center gap-2">
-                <Select
-                  styles={selectStyles}
-                  placeholder={"Category"}
-                  onChange={(e) => setData({ ...data, category: e.value })}
-                  options={options}
-                  isClearable={true}
-                />
-                <Button variant="primary" onClick={() => setModal(true)}>
-                  +
+              <div className="px-3">
+                <Button variant="info" onClick={() => setModal(true)}>
+                  Add Category
                 </Button>
               </div>
             </div>
@@ -236,10 +248,8 @@ const AddNew = () => {
               id="hi"
               apiKey="8p7b5cr7v1jc30rynl5dwh6x8nywa0arh7brqb51i1ms7tvl"
               onInit={(evt, editor) => (editorRef.current = editor)}
-              onEditorChange={(newText, editor) => {
-                setData({ ...data, content: editor.getContent() });
-              }}
-              value={data.content}
+              onEditorChange={(newText, editor) => {}}
+              initialValue={<p>This is the initial content of the editor.</p>}
               init={{
                 height: 400,
                 menubar: false,
@@ -295,6 +305,9 @@ const AddNew = () => {
         prev={prev}
         image={image}
         setImage={setImage}
+        isUpdate={param?.id ? param?.id?.slice(1) : false}
+        isDraft={isDraft}
+        setDraft={setDraft}
       />
       <Modal size="sm" show={modal} onHide={() => setModal(false)}>
         <Modal.Header closeButton>Add a Category</Modal.Header>

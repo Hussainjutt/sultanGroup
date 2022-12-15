@@ -7,6 +7,9 @@ import styled from "styled-components";
 import { Button, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Popconfirm } from "antd";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../../../../firebase";
+import { toast } from "react-toastify";
 
 const Container = styled.div`
   position: relative;
@@ -129,7 +132,7 @@ const Box = styled.div`
   font-size: 1.2em;
   padding: 0 2em;
 `;
-const BlogCard = ({ data }) => {
+const BlogCard = ({ data, arr }) => {
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
   const getDate = () => {
@@ -145,6 +148,22 @@ const BlogCard = ({ data }) => {
   if (data?.date) {
     date = getDate();
   }
+  const handleDelete = async (id) => {
+    try {
+      function removeObjectWithId(arr, id) {
+        const objWithIdIndex = arr.findIndex((obj) => obj.id === id);
+        arr.splice(objWithIdIndex, 1);
+        return arr;
+      }
+      let newData = removeObjectWithId(arr, id);
+      await updateDoc(doc(db, "blogs", "allBlogs"), {
+        data: [...newData],
+      });
+      toast.success(`Blog deleted successfully`);
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
   return (
     <>
       <Container image={data?.image}>
@@ -193,30 +212,43 @@ const BlogCard = ({ data }) => {
             top: "-4px",
             right: "7px",
           }}
-          onClick={() => navigate("/create-blog")}
+          onClick={() => navigate(`/edit-blog/:${data?.id}`)}
         >
           <TbEdit />
         </span>
-
-        <Popconfirm
-          title="Are you sure？"
-          placement="bottom"
-          okText="Yes"
-          cancelText="No"
+        <span
+          className="blogs-icons"
+          style={{
+            fontSize: "26px",
+            position: "absolute",
+            top: "22px",
+            right: "8px",
+          }}
+          onClick={() => setShow(true)}
         >
-          <span
-            className="blogs-icons"
-            style={{
-              fontSize: "26px",
-              position: "absolute",
-              top: "22px",
-              right: "8px",
-            }}
-            onClick={() => setShow(true)}
-          >
-            <MdDeleteOutline />
-          </span>
-        </Popconfirm>
+          <MdDeleteOutline />
+        </span>
+        <Modal
+          centered={true}
+          size="sm"
+          show={show}
+          onHide={() => setShow(false)}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title>Confirmation</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <h3>
+              Are you sure to <b>Delete</b> this Blog
+            </h3>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button>Cancel</Button>
+            <Button variant="danger" onClick={() => handleDelete(data?.id)}>
+              Confirm
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </Container>
     </>
   );

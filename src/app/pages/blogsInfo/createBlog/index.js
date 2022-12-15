@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { FileUploader } from "react-drag-drop-files";
 import { MdOutlineUpload } from "react-icons/md";
 import { BsImageFill } from "react-icons/bs";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Layout from "../../../adminDashboard";
 import { Button, Modal, Form, Row, FormControl } from "react-bootstrap";
 import { MdOutlinePublic } from "react-icons/md";
@@ -69,7 +69,7 @@ const selectStyles = {
     borderRadius: "0 0 4px 4px",
   }),
 };
-const AddNew = () => {
+const AddNew = ({ forDraft, forEdit }) => {
   const editorRef = useRef(null);
   const [image, setImage] = useState({ prev: "", file: "", isUrl: false });
   const [show, setShow] = useState(false);
@@ -80,10 +80,12 @@ const AddNew = () => {
     content: null,
     category: "",
     comments: [],
+    isDraft: null,
   });
   const [category, setCategory] = useState("");
   const [modal, setModal] = useState(false);
   const [options, setOptions] = useState([]);
+  const param = useParams();
   const addCategory = async () => {
     try {
       await updateDoc(doc(db, "blogs", "category"), {
@@ -102,12 +104,13 @@ const AddNew = () => {
       toast.error(error.message);
     }
   };
-  const getData = () => {
+  const getData = (val) => {
     if (editorRef.current) {
       setData({
         ...data,
         image: image,
-        content: editorRef.current.getContent(),
+        content: editorRef?.current?.getContent(),
+        isDraft: val,
       });
       setPrev(true);
     }
@@ -121,32 +124,67 @@ const AddNew = () => {
       unSub();
     };
   }, []);
+  useEffect(() => {
+    if (param?.id) {
+      const unSub = onSnapshot(doc(db, "blogs", "allBlogs"), (doc) => {
+        let blog = doc
+          .data()
+          ?.data.filter((el) => el?.id === param?.id?.slice(1));
+        let arr = blog[0];
+        console.log("arr", arr, data);
+        setData({
+          ...data,
+          title: arr?.title,
+          category: arr?.category,
+          comments: arr?.comments,
+        });
+        editorRef?.current?.setContent(arr?.content);
+        setImage({
+          ...image,
+          prev: arr?.image,
+          isUrl: true,
+          file: arr?.image,
+        });
+      });
+      return () => {
+        unSub();
+      };
+    }
+  }, [param?.id, editorRef]);
   return (
-    <Layout heading={"Create Blog"}>
+    <Layout heading={forEdit ? "Edit Blog" : "Create Blog"}>
       <Container>
         <div className="d-flex justify-content-between gap-3  mb-3">
-          <Button onClick={() => navigate("/all-blogs")}>
+          <Button
+            onClick={() => navigate("/all-blogs")}
+            variant="info"
+            className="text-white"
+          >
             <IoChevronBackOutline
               style={{ position: "relative", top: "-2px" }}
             />
             &nbsp;Back
           </Button>
           <div className="d-flex justify-content-end gap-3">
-            <Button variant="primary" onClick={() => getData()}>
+            <Button
+              variant="primary"
+              onClick={() => {
+                getData(false);
+              }}
+            >
               Publish{" "}
               <MdOutlinePublic
                 style={{ fontSize: "20px", position: "relative", top: "-2px" }}
               />
             </Button>
-            <Button variant="dark">
+            <Button
+              variant="dark"
+              onClick={() => {
+                getData(true);
+              }}
+            >
               Draft{" "}
               <BiSave
-                style={{ fontSize: "20px", position: "relative", top: "-2px" }}
-              />
-            </Button>
-            <Button variant="danger">
-              Cancel{" "}
-              <TiCancelOutline
                 style={{ fontSize: "20px", position: "relative", top: "-2px" }}
               />
             </Button>
@@ -174,9 +212,15 @@ const AddNew = () => {
                 styles={selectStyles}
                 className="w-25"
                 placeholder={"Category"}
-                onChange={(e) => setData({ ...data, category: e.value })}
+                value={
+                  param?.id &&
+                  data?.category && {
+                    label: data?.category,
+                    value: data?.category,
+                  }
+                }
+                onChange={(e) => setData({ ...data, category: e.label })}
                 options={options}
-                isClearable={true}
               />
             </div>
             <div className="d-flex justify-content-between">
@@ -200,9 +244,7 @@ const AddNew = () => {
               id="hi"
               apiKey="8p7b5cr7v1jc30rynl5dwh6x8nywa0arh7brqb51i1ms7tvl"
               onInit={(evt, editor) => (editorRef.current = editor)}
-              onEditorChange={(newText, editor) => {
-                // console.log(editor.getContent({ format: "raw" }));
-              }}
+              onEditorChange={(newText, editor) => {}}
               initialValue={<p>This is the initial content of the editor.</p>}
               init={{
                 height: 400,
@@ -259,6 +301,7 @@ const AddNew = () => {
         prev={prev}
         image={image}
         setImage={setImage}
+        isUpdate={param?.id ? param?.id?.slice(1) : false}
       />
       <Modal size="sm" show={modal} onHide={() => setModal(false)}>
         <Modal.Header closeButton>Add a Category</Modal.Header>

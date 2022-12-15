@@ -6,6 +6,9 @@ import {
   MdOutlineArrowDropUp,
 } from "react-icons/md";
 import { BiSearchAlt2 } from "react-icons/bi";
+import { useEffect } from "react";
+import { doc, onSnapshot } from "firebase/firestore";
+import { db } from "../../../../../firebase";
 const Container = styled.div`
   display: flex;
   align-items: center;
@@ -40,6 +43,10 @@ const Box = styled.div`
 const Small = styled.small`
   color: #ccc;
   margin: 0 6px;
+  font-size: 12px;
+  max-width: 100px;
+  overflow: hidden;
+  white-space: nowrap;
 `;
 const Menu = styled.div`
   position: absolute;
@@ -54,7 +61,14 @@ const Menu = styled.div`
   max-height: 120px;
   overflow-y: auto;
   &::-webkit-scrollbar {
-    width: 0px;
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #1d2a35;
+    border-radius: 2rem;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: black;
   }
 `;
 const Option = styled.p`
@@ -78,13 +92,21 @@ const Main = styled.div`
   max-width: 600px;
   position: relative;
 `;
-const SearchBar = () => {
+const SearchBar = ({ setCatagory }) => {
   const [val, setVal] = useState("Catergoies");
   const [show, setShow] = useState(false);
+  const [options, setOptions] = useState([]);
   const Select = () => {
     return (
       <Box onClick={() => setShow(!show)}>
-        <Small style={{ color: val !== "Catergoies" && "#000" }}>{val}</Small>
+        <Small
+          style={{
+            color: val !== "Catergoies" && "#000",
+            textOverflow: val !== "Catergoies" ? "ellipsis" : "unset",
+          }}
+        >
+          {val}
+        </Small>
         {show ? (
           <MdOutlineArrowDropUp
             style={{ color: "#00A8E8", fontSize: "20px" }}
@@ -97,6 +119,14 @@ const SearchBar = () => {
       </Box>
     );
   };
+  useEffect(() => {
+    const unSub = onSnapshot(doc(db, "products", "category"), (doc) => {
+      setOptions(doc.data().data);
+    });
+    return () => {
+      unSub();
+    };
+  }, []);
   return (
     <Main>
       <Container>
@@ -115,20 +145,22 @@ const SearchBar = () => {
           <Option
             onClick={() => {
               setVal("Catergoies");
+              setCatagory("");
               setShow(false);
             }}
           >
             None <MdNotInterested style={{ fontSize: "12px" }} />
           </Option>
-          {[1, 2, 3, 4].map((el, i) => (
+          {options.map((el, i) => (
             <Option
               key={i}
               onClick={() => {
-                setVal("jiji" + i);
+                setVal(el?.value);
+                setCatagory(el?.value?.toLowerCase());
                 setShow(false);
               }}
             >
-              jiji
+              {el?.label}
             </Option>
           ))}
         </Menu>
