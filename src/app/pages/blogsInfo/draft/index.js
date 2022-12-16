@@ -35,7 +35,7 @@ const Index = () => {
           .data?.filter((el) => el?.category?.toLowerCase() === category);
         setData(dummy);
       } else {
-        setData(doc?.data().data);
+        setData(doc?.data().data.filter((el) => el?.isDraft === true));
       }
       setTimeout(() => {
         setLoader(false);

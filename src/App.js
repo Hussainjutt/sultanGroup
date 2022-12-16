@@ -99,14 +99,6 @@ const App = () => {
             }
           />
           <Route
-            path="/edit-blog:id"
-            element={
-              <ProtectedRoute>
-                <CreateBlog forDraft={true} forEdit={true} />
-              </ProtectedRoute>
-            }
-          />
-          <Route
             path="/all-products"
             element={
               <ProtectedRoute>

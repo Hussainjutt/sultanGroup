@@ -7,7 +7,7 @@ import styled from "styled-components";
 import { Button, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Popconfirm } from "antd";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../../firebase";
 import { toast } from "react-toastify";
 
@@ -132,7 +132,7 @@ const Box = styled.div`
   font-size: 1.2em;
   padding: 0 2em;
 `;
-const BlogCard = ({ data, arr }) => {
+const BlogCard = ({ data }) => {
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
   const getDate = () => {
@@ -155,7 +155,9 @@ const BlogCard = ({ data, arr }) => {
         arr.splice(objWithIdIndex, 1);
         return arr;
       }
-      let newData = removeObjectWithId(arr, id);
+      let prods = await getDoc(doc(db, "products", "allProducts"));
+      prods = prods.data().data;
+      let newData = removeObjectWithId(prods, id);
       await updateDoc(doc(db, "products", "allProducts"), {
         data: [...newData],
       });
@@ -177,6 +179,18 @@ const BlogCard = ({ data, arr }) => {
         </Info>
         <Footer>
           <Box className="d-flex justify-content-start  gap-3">
+            <span>
+              <AiOutlineComment
+                style={{
+                  color: "#00A8E8",
+                  fontSize: "20px",
+                  position: "relative",
+                  top: "-2px",
+                }}
+              />
+              &nbsp;
+              <span style={{ color: "#27BF0F" }}>{data?.quots?.length}</span>
+            </span>
             <span>
               <CiCalendarDate
                 style={{
@@ -231,7 +245,7 @@ const BlogCard = ({ data, arr }) => {
             </h3>
           </Modal.Body>
           <Modal.Footer>
-            <Button>Cancel</Button>
+            <Button onClick={() => setShow(false)}>Cancel</Button>
             <Button variant="danger" onClick={() => handleDelete(data?.id)}>
               Confirm
             </Button>

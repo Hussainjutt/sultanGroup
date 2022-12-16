@@ -243,7 +243,7 @@ const BlogCard = ({ data, arr }) => {
             </h3>
           </Modal.Body>
           <Modal.Footer>
-            <Button>Cancel</Button>
+            <Button onClick={() => setShow(false)}>Cancel</Button>
             <Button variant="danger" onClick={() => handleDelete(data?.id)}>
               Confirm
             </Button>

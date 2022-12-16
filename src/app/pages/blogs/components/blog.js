@@ -149,7 +149,7 @@ const Blogs = () => {
             );
           setData(dummy);
         } else {
-          setData(doc?.data().data);
+          setData(doc?.data().data.filter((el) => el.isDraft === false));
         }
       }
       setTimeout(() => {

@@ -33,21 +33,9 @@ const Index = () => {
         let dummy = doc
           .data()
           .data?.filter((el) => el?.category?.toLowerCase() === category);
-        setData(
-          dummy.sort(
-            (objA, objB) =>
-              Number(objA.date.toDate()) - Number(objB.date.toDate())
-          )
-        );
+        setData(dummy);
       } else {
-        setData(
-          doc
-            ?.data()
-            .data.sort(
-              (objA, objB) =>
-                Number(objA.date.toDate()) - Number(objB.date.toDate())
-            )
-        );
+        setData(doc?.data().data.filter((el) => el?.isDraft === false));
       }
       setTimeout(() => {
         setLoader(false);

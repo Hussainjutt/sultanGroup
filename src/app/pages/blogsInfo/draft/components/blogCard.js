@@ -212,7 +212,7 @@ const BlogCard = ({ data, arr }) => {
             top: "-4px",
             right: "7px",
           }}
-          onClick={() => navigate(`/edit-blog:${data?.id}`)}
+          onClick={() => navigate(`/edit-blog/:${data?.id}`)}
         >
           <TbEdit />
         </span>

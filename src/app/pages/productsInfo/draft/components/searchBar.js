@@ -120,7 +120,7 @@ const SearchBar = ({ setCatagory }) => {
     );
   };
   useEffect(() => {
-    const unSub = onSnapshot(doc(db, "blogs", "category"), (doc) => {
+    const unSub = onSnapshot(doc(db, "products", "category"), (doc) => {
       setOptions(doc.data().data);
     });
     return () => {

@@ -27,27 +27,15 @@ const Index = () => {
   const [data, setData] = useState([]);
   const [loader, setLoader] = useState(false);
   useEffect(() => {
-    const unSub = onSnapshot(doc(db, "products", "draft"), (doc) => {
+    const unSub = onSnapshot(doc(db, "products", "allProducts"), (doc) => {
       setLoader(true);
       if (category) {
         let dummy = doc
           .data()
           .data?.filter((el) => el?.category?.toLowerCase() === category);
-        setData(
-          dummy.sort(
-            (objA, objB) =>
-              Number(objA.date.toDate()) - Number(objB.date.toDate())
-          )
-        );
+        setData(dummy);
       } else {
-        setData(
-          doc
-            ?.data()
-            .data.sort(
-              (objA, objB) =>
-                Number(objA.date.toDate()) - Number(objB.date.toDate())
-            )
-        );
+        setData(doc?.data().data.filter((el) => el?.isDraft === true));
       }
       setTimeout(() => {
         setLoader(false);
@@ -62,8 +50,8 @@ const Index = () => {
       <Container>
         <div className="d-flex justify-content-between align-items-center mb-3">
           <SearchBar setCatagory={setCatagory} />
-          <Button variant="primary" onClick={() => navigate("/create-blog")}>
-            Create Blog
+          <Button variant="primary" onClick={() => navigate("/create-product")}>
+            Create Product
           </Button>
         </div>
         <h1

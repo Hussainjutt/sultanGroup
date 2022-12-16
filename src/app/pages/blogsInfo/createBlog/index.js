@@ -69,7 +69,7 @@ const selectStyles = {
     borderRadius: "0 0 4px 4px",
   }),
 };
-const AddNew = ({ forDraft, forEdit }) => {
+const AddNew = ({ forEdit }) => {
   const editorRef = useRef(null);
   const [image, setImage] = useState({ prev: "", file: "", isUrl: false });
   const [show, setShow] = useState(false);

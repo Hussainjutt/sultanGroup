@@ -79,12 +79,13 @@ const AddNew = ({ forDraft, forEdit }) => {
     image: "",
     content: null,
     category: "",
-    comments: [],
+    quots: [],
+    isDraft: null,
   });
   const [category, setCategory] = useState("");
   const [modal, setModal] = useState(false);
   const [options, setOptions] = useState([]);
-  const [isDraft, setDraft] = useState(false);
+  const [disabled, setDisabled] = useState(true);
   const param = useParams();
   const addCategory = async () => {
     try {
@@ -109,7 +110,8 @@ const AddNew = ({ forDraft, forEdit }) => {
       setData({
         ...data,
         image: image,
-        content: editorRef.current.getContent(),
+        content: editorRef?.current?.getContent(),
+        isDraft: val,
       });
       setPrev(true);
     }
@@ -125,37 +127,54 @@ const AddNew = ({ forDraft, forEdit }) => {
   }, []);
   useEffect(() => {
     if (param?.id) {
-      const unSub = onSnapshot(
-        doc(db, "products", forDraft ? "draft" : "allProducts"),
-        (doc) => {
-          let data = doc
-            .data()
-            ?.data.filter((el) => el?.id === param?.id?.slice(1));
-          let arr = data[0];
-          setData({
-            ...data,
-            title: arr?.title,
-            category: arr?.category,
-          });
-          editorRef?.current?.setContent(arr?.content);
-          setImage({
-            ...image,
-            prev: arr?.image,
-            isUrl: true,
-            file: arr?.image,
-          });
-        }
-      );
+      const unSub = onSnapshot(doc(db, "products", "allProducts"), (doc) => {
+        let product = doc
+          .data()
+          ?.data.filter((el) => el?.id === param?.id?.slice(1));
+        let arr = product[0];
+        console.log(arr);
+        setData({
+          ...data,
+          title: arr?.title,
+          category: arr?.category,
+          quots: arr?.quots,
+        });
+        editorRef?.current?.setContent(arr?.content);
+        setImage({
+          ...image,
+          prev: arr?.image,
+          isUrl: true,
+          file: arr?.image,
+        });
+      });
       return () => {
         unSub();
       };
     }
   }, [param?.id, editorRef]);
+  useEffect(() => {
+    if (
+      data.category &&
+      editorRef.current.getContent() &&
+      data.title &&
+      image.file &&
+      image.prev
+    ) {
+      setDisabled(false);
+    } else {
+      setDisabled(true);
+    }
+  }, [image, data]);
+
   return (
     <Layout heading={forEdit ? "Edit Product" : "Create Product"}>
       <Container>
         <div className="d-flex justify-content-between gap-3  mb-3">
-          <Button onClick={() => navigate("/all-products")}>
+          <Button
+            onClick={() => navigate("/all-products")}
+            variant="info"
+            className="text-white"
+          >
             <IoChevronBackOutline
               style={{ position: "relative", top: "-2px" }}
             />
@@ -165,9 +184,9 @@ const AddNew = ({ forDraft, forEdit }) => {
             <Button
               variant="primary"
               onClick={() => {
-                setDraft(false);
-                getData();
+                getData(false);
               }}
+              disabled={disabled}
             >
               Publish{" "}
               <MdOutlinePublic
@@ -177,18 +196,12 @@ const AddNew = ({ forDraft, forEdit }) => {
             <Button
               variant="dark"
               onClick={() => {
-                setDraft(true);
-                getData();
+                getData(true);
               }}
+              disabled={disabled}
             >
               Draft{" "}
               <BiSave
-                style={{ fontSize: "20px", position: "relative", top: "-2px" }}
-              />
-            </Button>
-            <Button variant="danger">
-              Cancel{" "}
-              <TiCancelOutline
                 style={{ fontSize: "20px", position: "relative", top: "-2px" }}
               />
             </Button>
@@ -217,7 +230,6 @@ const AddNew = ({ forDraft, forEdit }) => {
                 className="w-25"
                 placeholder={"Category"}
                 value={
-                  param?.id &&
                   data?.category && {
                     label: data?.category,
                     value: data?.category,
@@ -248,8 +260,9 @@ const AddNew = ({ forDraft, forEdit }) => {
               id="hi"
               apiKey="8p7b5cr7v1jc30rynl5dwh6x8nywa0arh7brqb51i1ms7tvl"
               onInit={(evt, editor) => (editorRef.current = editor)}
-              onEditorChange={(newText, editor) => {}}
-              initialValue={<p>This is the initial content of the editor.</p>}
+              onEditorChange={(newText, editor) => {
+                // setData({ ...data, content: editor.getContent() });
+              }}
               init={{
                 height: 400,
                 menubar: false,
@@ -306,8 +319,7 @@ const AddNew = ({ forDraft, forEdit }) => {
         image={image}
         setImage={setImage}
         isUpdate={param?.id ? param?.id?.slice(1) : false}
-        isDraft={isDraft}
-        setDraft={setDraft}
+        editor={editorRef.current}
       />
       <Modal size="sm" show={modal} onHide={() => setModal(false)}>
         <Modal.Header closeButton>Add a Category</Modal.Header>

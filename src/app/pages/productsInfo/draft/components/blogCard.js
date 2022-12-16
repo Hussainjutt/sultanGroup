@@ -7,7 +7,7 @@ import styled from "styled-components";
 import { Button, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Popconfirm } from "antd";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../../firebase";
 import { toast } from "react-toastify";
 
@@ -132,7 +132,7 @@ const Box = styled.div`
   font-size: 1.2em;
   padding: 0 2em;
 `;
-const BlogCard = ({ data, arr }) => {
+const BlogCard = ({ data }) => {
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
   const getDate = () => {
@@ -155,8 +155,10 @@ const BlogCard = ({ data, arr }) => {
         arr.splice(objWithIdIndex, 1);
         return arr;
       }
-      let newData = removeObjectWithId(arr, id);
-      await updateDoc(doc(db, "products", "draft"), {
+      let prods = await getDoc(doc(db, "products", "allProducts"));
+      prods = prods.data().data;
+      let newData = removeObjectWithId(prods, id);
+      await updateDoc(doc(db, "products", "allProducts"), {
         data: [...newData],
       });
       toast.success(`Product deleted successfully`);
@@ -187,7 +189,7 @@ const BlogCard = ({ data, arr }) => {
                 }}
               />
               &nbsp;
-              <span style={{ color: "#27BF0F" }}>{data?.comments?.length}</span>
+              <span style={{ color: "#27BF0F" }}>{data?.quots?.length}</span>
             </span>
             <span>
               <CiCalendarDate
@@ -212,7 +214,7 @@ const BlogCard = ({ data, arr }) => {
             top: "-4px",
             right: "7px",
           }}
-          onClick={() => navigate(`/edit-product:${data?.id}`)}
+          onClick={() => navigate(`/edit-product/:${data?.id}`)}
         >
           <TbEdit />
         </span>
@@ -243,7 +245,7 @@ const BlogCard = ({ data, arr }) => {
             </h3>
           </Modal.Body>
           <Modal.Footer>
-            <Button>Cancel</Button>
+            <Button onClick={() => setShow(false)}>Cancel</Button>
             <Button variant="danger" onClick={() => handleDelete(data?.id)}>
               Confirm
             </Button>

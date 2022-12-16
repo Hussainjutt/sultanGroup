@@ -7,6 +7,7 @@ import Img2 from "../../../assets/image/products/2.jpg";
 import { FcInfo } from "react-icons/fc";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../../../../firebase";
+import { HiEmojiSad } from "react-icons/hi";
 const Container = styled.div`
   width: 100%;
 `;
@@ -126,7 +127,7 @@ const Product = ({ category }) => {
           );
         setData(dummy);
       } else {
-        setData(doc?.data()?.data);
+        setData(doc?.data()?.data.filter((el) => el.isDraft === false));
       }
       setTimeout(() => {
         setLoader(false);
@@ -141,6 +142,10 @@ const Product = ({ category }) => {
       <Wrapper>
         {Loader ? (
           <Spinner variant="info" size="lg" animation="border" />
+        ) : data.length === 0 ? (
+          <h1 style={{ textAlign: "center", marginTop: "3rem" }}>
+            No data Found <HiEmojiSad />
+          </h1>
         ) : (
           data?.map((el, i) => (
             <Card

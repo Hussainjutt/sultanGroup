@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   arrayUnion,
   doc,
@@ -8,7 +8,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import { Button, Modal } from "react-bootstrap";
+import { Button, Modal, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import styled from "styled-components";
 import { v4 as uid } from "uuid";
@@ -24,223 +24,205 @@ const PrevModal = ({
   image,
   setImage,
   isUpdate,
-  isDraft,
-  setDraft,
+  editor,
 }) => {
   const navigate = useNavigate();
-  const addProduct = async (data) => {
-    if (data.image.isUrl) {
-      try {
-        await updateDoc(
-          doc(db, "products", isDraft ? "draft" : "allProducts"),
-          {
-            data: arrayUnion({
-              id: uid(),
-              image: data?.image.prev,
-              content: data?.content,
-              title: data?.title,
-              category: data?.category,
-              date: Timestamp.now(),
-            }),
+  const [loader, setLoader] = useState(false);
+  const addProd = async (data) => {
+    try {
+      if (data.image.isUrl) {
+        setLoader(true);
+        await updateDoc(doc(db, "products", "allProducts"), {
+          data: arrayUnion({
+            id: uid(),
+            image: data?.image?.prev,
+            content: data?.content,
+            title: data?.title,
+            category: data?.category,
+            date: Timestamp.now(),
+            isDraft: data?.isDraft,
+            quots: data?.quots,
+          }),
+        });
+        toast.success(
+          data?.isDraft
+            ? "Product is saved to draft successfully"
+            : "Product is published successfully"
+        );
+        setData({
+          title: "",
+          image: "",
+          content: null,
+          category: "",
+          quots: [],
+          isDraft: null,
+        });
+        setImage({ ...image, prev: "", file: "", isUrl: false });
+        editor?.setContent("");
+        // navigate(data?.isDraft ? "/all-products" : "/products-draft");
+        setLoader(false);
+        setPrev(false);
+      } else {
+        setLoader(true);
+        let file = data?.image?.file;
+        const name = new Date().getTime() + file.name;
+        const storageRef = ref(storage, name);
+        const UploadTask = uploadBytesResumable(storageRef, file);
+        UploadTask.on(
+          "state_changed",
+          (snapShot) => {
+            switch (snapShot.state) {
+              case "paused":
+                console.warn("paused");
+                break;
+              case "running":
+                console.warn("running");
+                break;
+            }
+          },
+          (errors) => {
+            toast.error(errors);
+          },
+          () => {
+            getDownloadURL(UploadTask.snapshot.ref).then((res) => {
+              updateDoc(doc(db, "blogs", "imageGallery"), {
+                data: arrayUnion({
+                  src: res,
+                  date: Timestamp.now(),
+                }),
+              }).then(() => {
+                updateDoc(doc(db, "products", "allProducts"), {
+                  data: arrayUnion({
+                    id: uid(),
+                    image: res,
+                    content: data?.content,
+                    title: data?.title,
+                    category: data?.category,
+                    date: Timestamp.now(),
+                    isDraft: data?.isDraft,
+                    quots: data?.quots,
+                  }),
+                }).then(() => {
+                  toast.success(
+                    data?.isDraft
+                      ? "Product is saved to draft successfully"
+                      : "Product is published successfully"
+                  );
+                  setData({
+                    ...data,
+                    title: "",
+                    image: "",
+                    content: null,
+                    category: "",
+                    isDraft: null,
+                  });
+                  setImage({ ...image, prev: "", file: "", isUrl: false });
+                  editor?.setContent("");
+                  setLoader(false);
+                  setPrev(false);
+                });
+              });
+            });
           }
         );
-        toast.success(`Product hase been Published`);
-        setData({ ...data, title: "", image: "", content: null, category: "" });
-        setImage({ ...image, prev: "", file: "", isUrl: false });
-        setDraft(false);
-        setPrev(false);
-        navigate("/all-products");
-      } catch (error) {
-        toast.error(error.message);
-        setPrev(false);
       }
-    } else {
-      let file = data?.image?.file;
-      const name = new Date().getTime() + file.name;
-      const storageRef = ref(storage, name);
-      const UploadTask = uploadBytesResumable(storageRef, file);
-      UploadTask.on(
-        "state_changed",
-        (snapShot) => {
-          switch (snapShot.state) {
-            case "paused":
-              console.warn("paused");
-              break;
-            case "running":
-              console.warn("running");
-              break;
-          }
-        },
-        (errors) => {
-          toast.error(errors);
-        },
-        () => {
-          getDownloadURL(UploadTask.snapshot.ref).then((res) => {
-            updateDoc(doc(db, "products", isDraft ? "draft" : "allProducts"), {
-              data: arrayUnion({
-                id: uid,
-                image: res,
-                content: data?.content,
-                title: data?.title,
-                category: data?.category,
-                date: serverTimestamp(),
-              }),
-            })
-              .then(() => {
-                setData({
-                  ...data,
-                  title: "",
-                  image: "",
-                  content: null,
-                  category: "",
-                });
-                setImage({ ...image, prev: "", file: "", isUrl: false });
-                toast.success(`Product hase been Published`);
-                setDraft(false);
-                navigate("/all-products");
-              })
-              .catch((err) => {
-                toast.error(err.message);
-              });
-          });
-        }
-      );
+    } catch (err) {
+      toast.error(err.message);
     }
   };
-  const updateProduct = async (data) => {
+  const updateProd = async () => {
     function removeObjectWithId(arr, id) {
       const objWithIdIndex = arr.findIndex((obj) => obj.id === id);
       arr.splice(objWithIdIndex, 1);
       return arr;
     }
-    if (data.image.isUrl) {
-      try {
+
+    try {
+      if (data.image.isUrl) {
+        setLoader(true);
         let arr = await getDoc(doc(db, "products", "allProducts"));
-        let newData = removeObjectWithId(arr?.data()?.data, isUpdate);
-        !isDraft &&
-          newData?.push({
-            id: isUpdate,
-            image: data?.image?.prev,
-            content: data?.content,
-            title: data?.title,
-            category: data?.category,
-            date: Timestamp.now(),
-          });
+        let newData = removeObjectWithId(arr.data().data, isUpdate);
+        newData.push({
+          category: data?.category,
+          quots: data?.quots,
+          content: data?.content,
+          date: Timestamp.now(),
+          id: isUpdate,
+          image: data?.image?.prev,
+          title: data.title,
+          isDraft: data.isDraft,
+        });
         await updateDoc(doc(db, "products", "allProducts"), {
           data: [...newData],
         });
-        if (isDraft) {
-          let arr = await getDoc(doc(db, "products", "draft"));
-          function removeObjectWithId(arr, id) {
-            const objWithIdIndex = arr.findIndex((obj) => obj.id === id);
-            arr.splice(objWithIdIndex, 1);
-            return arr;
-          }
-          let newData = removeObjectWithId(arr?.data()?.data, isUpdate);
-          newData?.push({
-            id: isUpdate,
-            image: data?.image?.prev,
-            content: data?.content,
-            title: data?.title,
-            category: data?.category,
-            date: Timestamp.now(),
-          });
-          await updateDoc(doc(db, "products", "draft"), {
-            data: [...newData],
-          });
-          navigate("/all-products");
-        } else {
-          let arr = await getDoc(doc(db, "products", "draft"));
-          let newData = removeObjectWithId(arr?.data()?.data, isUpdate);
-          await updateDoc(doc(db, "products", "draft"), {
-            data: [...newData],
-          });
-          navigate("/products-draft");
-        }
-        toast.success(`Blog Updated successfully`);
-        setDraft(false);
+        setLoader(false);
+        toast.success("Product is updated successfully");
         setPrev(false);
-      } catch (error) {
-        toast.error(error.message);
-        setPrev(false);
-      }
-    } else {
-      let file = data?.image?.file;
-      const name = new Date().getTime() + file.name;
-      const storageRef = ref(storage, name);
-      const UploadTask = uploadBytesResumable(storageRef, file);
-      UploadTask.on(
-        "state_changed",
-        (snapShot) => {
-          switch (snapShot.state) {
-            case "paused":
-              console.warn("paused");
-              break;
-            case "running":
-              console.warn("running");
-              break;
-          }
-        },
-        (errors) => {
-          toast.error(errors);
-        },
-        () => {
-          getDownloadURL(UploadTask.snapshot.ref).then((res) => {
-            getDoc(doc(db, "products", "allProducts"))
-              .then((req) => {
-                let newData = removeObjectWithId(req?.data()?.data, isUpdate);
-                !isDraft &&
-                  newData?.push({
-                    id: isUpdate,
-                    image: data?.image?.prev,
-                    content: data?.content,
-                    title: data?.title,
-                    category: data?.category,
-                    date: Timestamp.now(),
-                  });
-                updateDoc(doc(db, "products", "allProducts"), {
-                  data: [...newData],
-                }).then(() => {
-                  if (isDraft) {
-                    getDoc(doc(db, "products", "draft")).then((req) => {
-                      function removeObjectWithId(arr, id) {
-                        const objWithIdIndex = arr.findIndex(
-                          (obj) => obj.id === id
-                        );
-                        arr.splice(objWithIdIndex, 1);
-                        return arr;
-                      }
-                      let newData = removeObjectWithId(
-                        req?.data()?.data,
-                        isUpdate
-                      );
-                      newData?.push({
-                        id: isUpdate,
-                        image: data?.image?.prev,
-                        content: data?.content,
-                        title: data?.title,
-                        category: data?.category,
-                        date: Timestamp.now(),
-                      });
-                      updateDoc(doc(db, "products", "draft"), {
-                        data: [...newData],
-                      }).then(() => navigate("/all-products"));
-                    });
-                  }
+      } else {
+        setLoader(true);
+        let file = data?.image?.file;
+        const name = new Date().getTime() + file.name;
+        const storageRef = ref(storage, name);
+        const UploadTask = uploadBytesResumable(storageRef, file);
+        UploadTask.on(
+          "state_changed",
+          (snapShot) => {
+            switch (snapShot.state) {
+              case "paused":
+                console.warn("paused");
+                break;
+              case "running":
+                console.warn("running");
+                break;
+            }
+          },
+          (errors) => {
+            toast.error(errors);
+          },
+          () => {
+            getDownloadURL(UploadTask.snapshot.ref).then((res) => {
+              updateDoc(doc(db, "blogs", "imageGallery"), {
+                data: arrayUnion({
+                  src: res,
+                  date: Timestamp.now(),
+                }),
+              }).then(async () => {
+                let arr = await getDoc(doc(db, "products", "allProducts"));
+                let newData = removeObjectWithId(arr.data().data, isUpdate);
+                newData.push({
+                  category: data?.category,
+                  quots: data?.quots,
+                  content: data?.content,
+                  date: Timestamp.now(),
+                  id: isUpdate,
+                  image: data?.image?.prev,
+                  title: data.title,
+                  isDraft: data.isDraft,
                 });
-              })
-              .then(() => {
+                await updateDoc(doc(db, "products", "allProducts"), {
+                  data: [...newData],
+                });
+                setLoader(false);
+                toast.success("Product is updated successfully");
                 setPrev(false);
-                toast.success(`Products Updated successfully`);
-                setDraft(false);
               });
-          });
-        }
-      );
+            });
+          }
+        );
+      }
+    } catch (error) {
+      toast.error(error.message);
+      setPrev(false);
     }
   };
   return (
-    <Modal show={prev} onHide={() => setPrev(false)} size="lg">
+    <Modal
+      show={prev}
+      onHide={() => {
+        !loader && setPrev(false);
+      }}
+      size="lg"
+    >
       <Modal.Header closeButton>
         <span style={{ fontWeight: "600", fontSize: "18px" }}>Preview</span>
       </Modal.Header>
@@ -266,20 +248,34 @@ const PrevModal = ({
         <div dangerouslySetInnerHTML={{ __html: data.content }} />
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="danger" onClick={() => setPrev(false)}>
+        <Button
+          variant="danger"
+          onClick={() => setPrev(false)}
+          disabled={loader}
+        >
           Close
         </Button>
         <Button
           variant="primary"
           onClick={() => {
             if (isUpdate) {
-              updateProduct(data);
+              updateProd(data);
             } else {
-              addProduct(data);
+              addProd(data);
             }
           }}
+          disabled={loader}
         >
-          Upload
+          {loader ? (
+            <>
+              <Spinner variant="dark" animation="border" size="sm" />
+              &nbsp;Wait
+            </>
+          ) : isUpdate ? (
+            "Update"
+          ) : (
+            "Upload"
+          )}
         </Button>
       </Modal.Footer>
     </Modal>

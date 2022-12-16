@@ -33,21 +33,9 @@ const Index = () => {
         let dummy = doc
           .data()
           .data?.filter((el) => el?.category?.toLowerCase() === category);
-        setData(
-          dummy.sort(
-            (objA, objB) =>
-              Number(objA.date.toDate()) - Number(objB.date.toDate())
-          )
-        );
+        setData(dummy);
       } else {
-        setData(
-          doc
-            ?.data()
-            .data.sort(
-              (objA, objB) =>
-                Number(objA.date.toDate()) - Number(objB.date.toDate())
-            )
-        );
+        setData(doc?.data().data.filter((el, i) => el.isDraft === false));
       }
       setTimeout(() => {
         setLoader(false);
@@ -82,7 +70,10 @@ const Index = () => {
               There is no data <TbMoodEmpty />
             </h3>
           ) : (
-            data.map((el, i) => <BlogCard key={i} data={el} arr={data} />)
+            data.map(
+              (el, i) =>
+                !el?.isDraft && <BlogCard key={i} data={el} arr={data} />
+            )
           )}
         </Wrapper>
       </Container>
