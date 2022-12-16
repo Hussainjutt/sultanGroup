@@ -14,7 +14,7 @@ import BlogsDraft from "./app/pages/blogsInfo/draft";
 import CreateProduct from "./app/pages/productsInfo/createProduct";
 import Login from "./app/pages/auth/login";
 import Profile from "./app/pages/profile";
-import AllProducts from "./app/pages/productsInfo/AllProducts";
+import AllProducts from "./app/pages/productsInfo/allProducts";
 import ProductDraft from "./app/pages/productsInfo/draft";
 import Gallery from "./app/pages/gallery";
 import TermsConditions from "./app/pages/terms&conditions";
@@ -108,6 +108,7 @@ const App = () => {
           />
           <Route
             path="/create-product"
+            j
             element={
               <ProtectedRoute>
                 <CreateProduct />
