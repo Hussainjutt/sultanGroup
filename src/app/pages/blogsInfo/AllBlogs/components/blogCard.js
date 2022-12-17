@@ -7,7 +7,7 @@ import styled from "styled-components";
 import { Button, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { Popconfirm } from "antd";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../../firebase";
 import { toast } from "react-toastify";
 
@@ -132,7 +132,7 @@ const Box = styled.div`
   font-size: 1.2em;
   padding: 0 2em;
 `;
-const BlogCard = ({ data, arr }) => {
+const BlogCard = ({ data }) => {
   const [show, setShow] = useState(false);
   const navigate = useNavigate();
   const getDate = () => {
@@ -155,7 +155,8 @@ const BlogCard = ({ data, arr }) => {
         arr.splice(objWithIdIndex, 1);
         return arr;
       }
-      let newData = removeObjectWithId(arr, id);
+      const arr = await getDoc(doc(db, "blogs", "allBlogs"));
+      let newData = removeObjectWithId(arr.data().data, id);
       await updateDoc(doc(db, "blogs", "allBlogs"), {
         data: [...newData],
       });
@@ -168,9 +169,8 @@ const BlogCard = ({ data, arr }) => {
     <>
       <Container image={data?.image}>
         <Header>
-          <H3>Admin</H3>
+          <H3>{data?.category}</H3>
           <hr />
-          <Intro>{data?.category}</Intro>
         </Header>
         <Info className="info">
           <span>{data?.title}</span>

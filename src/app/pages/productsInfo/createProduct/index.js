@@ -86,6 +86,7 @@ const AddNew = ({ forDraft, forEdit }) => {
   const [modal, setModal] = useState(false);
   const [options, setOptions] = useState([]);
   const [disabled, setDisabled] = useState(true);
+  const [content, setContent] = useState("");
   const param = useParams();
   const addCategory = async () => {
     try {
@@ -132,7 +133,6 @@ const AddNew = ({ forDraft, forEdit }) => {
           .data()
           ?.data.filter((el) => el?.id === param?.id?.slice(1));
         let arr = product[0];
-        console.log(arr);
         setData({
           ...data,
           title: arr?.title,
@@ -140,6 +140,7 @@ const AddNew = ({ forDraft, forEdit }) => {
           quots: arr?.quots,
         });
         editorRef?.current?.setContent(arr?.content);
+        setContent(arr?.content);
         setImage({
           ...image,
           prev: arr?.image,
@@ -153,18 +154,15 @@ const AddNew = ({ forDraft, forEdit }) => {
     }
   }, [param?.id, editorRef]);
   useEffect(() => {
-    if (
-      data.category &&
-      editorRef.current.getContent() &&
-      data.title &&
-      image.file &&
-      image.prev
-    ) {
+    if (data.category && data.title && image.file && image.prev && content) {
       setDisabled(false);
     } else {
       setDisabled(true);
     }
-  }, [image, data]);
+    if (content === "") {
+      editorRef.current?.setContent("");
+    }
+  }, [image, data, content]);
 
   return (
     <Layout heading={forEdit ? "Edit Product" : "Create Product"}>
@@ -261,11 +259,11 @@ const AddNew = ({ forDraft, forEdit }) => {
               apiKey="8p7b5cr7v1jc30rynl5dwh6x8nywa0arh7brqb51i1ms7tvl"
               onInit={(evt, editor) => (editorRef.current = editor)}
               onEditorChange={(newText, editor) => {
-                // setData({ ...data, content: editor.getContent() });
+                setContent(newText);
               }}
               init={{
                 height: 400,
-                menubar: false,
+                menubar: true,
                 plugins: [
                   "insertdatetime",
                   "print",
@@ -320,6 +318,7 @@ const AddNew = ({ forDraft, forEdit }) => {
         setImage={setImage}
         isUpdate={param?.id ? param?.id?.slice(1) : false}
         editor={editorRef.current}
+        setContent={setContent}
       />
       <Modal size="sm" show={modal} onHide={() => setModal(false)}>
         <Modal.Header closeButton>Add a Category</Modal.Header>

@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { db } from "../../../../firebase";
 import DashBoard from "../../../adminDashboard";
-import BlogCard from "./components/blogCard";
+import ProdCard from "./components/productCard";
 import SearchBar from "./components/searchBar";
 
 const Container = styled.div`
@@ -33,9 +33,14 @@ const Index = () => {
         let dummy = doc
           .data()
           .data?.filter((el) => el?.category?.toLowerCase() === category);
-        setData(dummy);
+        setData(dummy.reverse());
       } else {
-        setData(doc?.data().data.filter((el, i) => el.isDraft === false));
+        setData(
+          doc
+            ?.data()
+            .data.filter((el, i) => el.isDraft === false)
+            .reverse()
+        );
       }
       setTimeout(() => {
         setLoader(false);
@@ -70,10 +75,7 @@ const Index = () => {
               There is no data <TbMoodEmpty />
             </h3>
           ) : (
-            data.map(
-              (el, i) =>
-                !el?.isDraft && <BlogCard key={i} data={el} arr={data} />
-            )
+            data.map((el, i) => <ProdCard key={i} data={el} arr={data} />)
           )}
         </Wrapper>
       </Container>

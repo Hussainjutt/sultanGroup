@@ -23,6 +23,7 @@ import PrivacyPolicy from "./app/pages/privacyPolicy";
 import ContactList from "./app/pages/contactList";
 import { Spinner } from "react-bootstrap";
 import { ToastContainer } from "react-toastify";
+import { useEffect } from "react";
 
 const App = () => {
   const [load, setLoad] = useState(true);
@@ -35,6 +36,7 @@ const App = () => {
     }
     return children;
   };
+
   return false ? (
     <Spinner
       size="lg"

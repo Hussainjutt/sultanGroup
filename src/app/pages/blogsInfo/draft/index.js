@@ -33,9 +33,14 @@ const Index = () => {
         let dummy = doc
           .data()
           .data?.filter((el) => el?.category?.toLowerCase() === category);
-        setData(dummy);
+        setData(dummy.reverse());
       } else {
-        setData(doc?.data().data.filter((el) => el?.isDraft === true));
+        setData(
+          doc
+            ?.data()
+            .data.filter((el) => el?.isDraft === true)
+            .reverse()
+        );
       }
       setTimeout(() => {
         setLoader(false);
@@ -70,10 +75,7 @@ const Index = () => {
               There is no data <TbMoodEmpty />
             </h3>
           ) : (
-            data.map(
-              (el, i) =>
-                el?.isDraft && <BlogCard key={i} data={el} arr={data} />
-            )
+            data.map((el, i) => <BlogCard key={i} data={el} arr={data} />)
           )}
         </Wrapper>
       </Container>

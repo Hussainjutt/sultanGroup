@@ -241,7 +241,7 @@ const BlogCard = ({ data }) => {
           </Modal.Header>
           <Modal.Body>
             <h3>
-              Are you sure to <b>Delete</b> this Blog
+              Are you sure to <b>Delete</b> this Product
             </h3>
           </Modal.Body>
           <Modal.Footer>

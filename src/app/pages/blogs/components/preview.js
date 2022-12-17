@@ -100,13 +100,13 @@ const Preview = () => {
     return string;
   };
 
-  let id = useParams().id.slice(1);
+  let id = useParams().id;
   useEffect(() => {
     if (id) {
       setLoader(true);
       const unSub = onSnapshot(doc(db, "blogs", "allBlogs"), (doc) => {
         doc.data().data.map((el, i) => {
-          if (el?.id === id) {
+          if (el?.title.toLowerCase().replace(/\s/g, "-") === id) {
             setData(el);
           }
         });
@@ -127,6 +127,7 @@ const Preview = () => {
             <Btn onClick={() => navigate("/blogs")}>
               <HiOutlineArrowNarrowLeft />
             </Btn>
+
             <span
               style={{
                 position: "absolute",

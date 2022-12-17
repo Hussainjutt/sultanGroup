@@ -53,32 +53,8 @@ const Icon = styled.span`
   color: #00a8e8;
 `;
 const Card = ({ data }) => {
-  const [link, setLink] = useState(null);
-
-  const clickref = useRef();
-  const downloadme = (uri) => {
-    // getDownloadURL(ref(storage, uri))
-    //   .then((url) => {
-    //     const link = document.createElement("a");
-    //     link.href = url;
-    //     document.body.appendChild(link);
-    //     link.click();
-    //     document.body.removeChild(link);
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //   });
-  };
-  // useEffect(() => {
-  //   if (link) {
-  //     clickref.current.click();
-  //   }
-  // }, [link]);
   return (
     <Container>
-      {/* <Icon>
-        <CgFileDocument />
-      </Icon> */}
       <Title>{data?.title}</Title>
       <Link href={data?.src} target="_blank">
         <MdOutlineOpenInNew style={{ color: "#27BE10" }} />

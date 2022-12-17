@@ -164,7 +164,9 @@ const SideBar = () => {
                     cursor: "pointer",
                   }}
                   onClick={() => {
-                    navigate(`/blog/:${el?.id}`);
+                    navigate(
+                      `/blog/:${el?.title.toLowerCase().replace(/\s/g, "-")}`
+                    );
                     setBlogs({ ...blogs, data: [], show: false });
                     setSearch("");
                   }}
@@ -221,7 +223,12 @@ const SideBar = () => {
       <br />
       <H1>Recent Posts</H1>
       {data?.map((el, i) => (
-        <Link key={i} onClick={() => navigate(`/blog/:${el?.id}`)}>
+        <Link
+          key={i}
+          onClick={() =>
+            navigate(`/blog/${el?.title.toLowerCase().replace(/\s/g, "-")}`)
+          }
+        >
           {el?.title}
         </Link>
       ))}

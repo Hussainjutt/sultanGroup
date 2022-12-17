@@ -85,6 +85,8 @@ const AddNew = ({ forEdit }) => {
   const [category, setCategory] = useState("");
   const [modal, setModal] = useState(false);
   const [options, setOptions] = useState([]);
+  const [disabled, setDisabled] = useState(true);
+  const [content, setContent] = useState("");
   const param = useParams();
   const addCategory = async () => {
     try {
@@ -131,7 +133,6 @@ const AddNew = ({ forEdit }) => {
           .data()
           ?.data.filter((el) => el?.id === param?.id?.slice(1));
         let arr = blog[0];
-        console.log("arr", arr, data);
         setData({
           ...data,
           title: arr?.title,
@@ -139,6 +140,7 @@ const AddNew = ({ forEdit }) => {
           comments: arr?.comments,
         });
         editorRef?.current?.setContent(arr?.content);
+        setContent(arr?.content);
         setImage({
           ...image,
           prev: arr?.image,
@@ -150,7 +152,17 @@ const AddNew = ({ forEdit }) => {
         unSub();
       };
     }
-  }, [param?.id, editorRef]);
+  }, [param?.id]);
+  useEffect(() => {
+    if (data.category && content && data.title && image.file && image.prev) {
+      setDisabled(false);
+    } else {
+      setDisabled(true);
+    }
+    if (content === "") {
+      editorRef?.current?.setContent("");
+    }
+  }, [image, data, content]);
   return (
     <Layout heading={forEdit ? "Edit Blog" : "Create Blog"}>
       <Container>
@@ -171,6 +183,7 @@ const AddNew = ({ forEdit }) => {
               onClick={() => {
                 getData(false);
               }}
+              disabled={disabled}
             >
               Publish{" "}
               <MdOutlinePublic
@@ -182,6 +195,7 @@ const AddNew = ({ forEdit }) => {
               onClick={() => {
                 getData(true);
               }}
+              disabled={disabled}
             >
               Draft{" "}
               <BiSave
@@ -213,7 +227,6 @@ const AddNew = ({ forEdit }) => {
                 className="w-25"
                 placeholder={"Category"}
                 value={
-                  param?.id &&
                   data?.category && {
                     label: data?.category,
                     value: data?.category,
@@ -244,7 +257,9 @@ const AddNew = ({ forEdit }) => {
               id="hi"
               apiKey="8p7b5cr7v1jc30rynl5dwh6x8nywa0arh7brqb51i1ms7tvl"
               onInit={(evt, editor) => (editorRef.current = editor)}
-              onEditorChange={(newText, editor) => {}}
+              onEditorChange={(newText, editor) => {
+                setContent(newText);
+              }}
               initialValue={<p>This is the initial content of the editor.</p>}
               init={{
                 height: 400,
@@ -302,6 +317,7 @@ const AddNew = ({ forEdit }) => {
         image={image}
         setImage={setImage}
         isUpdate={param?.id ? param?.id?.slice(1) : false}
+        setContent={setContent}
       />
       <Modal size="sm" show={modal} onHide={() => setModal(false)}>
         <Modal.Header closeButton>Add a Category</Modal.Header>

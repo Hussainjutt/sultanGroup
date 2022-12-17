@@ -170,9 +170,8 @@ const BlogCard = ({ data }) => {
     <>
       <Container image={data?.image}>
         <Header>
-          <H3>Admin</H3>
+          <H3>{data?.category}</H3>
           <hr />
-          <Intro>{data?.category}</Intro>
         </Header>
         <Info className="info">
           <span>{data?.title}</span>
@@ -241,7 +240,7 @@ const BlogCard = ({ data }) => {
           </Modal.Header>
           <Modal.Body>
             <h3>
-              Are you sure to <b>Delete</b> this Blog
+              Are you sure to <b>Delete</b> this Product
             </h3>
           </Modal.Body>
           <Modal.Footer>

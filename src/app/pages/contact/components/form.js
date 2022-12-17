@@ -30,6 +30,7 @@ const ContactForm = () => {
     <>
       <H1>Conatct Us</H1>
       <Coantainer>
+        <form></form>
         <Row className="mb-3">
           <Col className="col-md-6 col-12">
             <FloatingLabel

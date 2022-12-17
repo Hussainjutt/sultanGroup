@@ -43,7 +43,6 @@ const Text = styled.p`
 const Categories = ({ setCategory }) => {
   const [options, setOptions] = useState([]);
   const location = useLocation();
-  console.log(location.pathname);
   const navigate = useNavigate();
   const CheckBox = ({ active, path }) => {
     const Container = styled.p`

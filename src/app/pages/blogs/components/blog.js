@@ -141,15 +141,15 @@ const Blogs = () => {
       } else {
         if (category) {
           let q = category?.category?.slice(1)?.toLowerCase();
-          console.log(q);
           let dummy = doc
             .data()
             .data?.filter(
               (el) => el?.category?.toLowerCase().replaceAll(/\s/g, "") === q
             );
-          setData(dummy);
+          setData(dummy.reverse());
         } else {
           setData(doc?.data().data.filter((el) => el.isDraft === false));
+          console.log("hi");
         }
       }
       setTimeout(() => {
@@ -191,7 +191,9 @@ const Blogs = () => {
             </Body>
             <Layer
               show={show === i}
-              onClick={() => navigate(`/blog/:${el?.id}`)}
+              onClick={() =>
+                navigate(`/blog/${el?.title.toLowerCase().replace(/\s/g, "-")}`)
+              }
             >
               <IoExpandOutline
                 style={{ color: "white", fontSize: "30px" }}
