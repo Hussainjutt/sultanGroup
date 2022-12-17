@@ -10,6 +10,8 @@ import {
 } from "react-icons/fa";
 import Bg from "../../assets/image/backgrounds/footer.png";
 import { useNavigate } from "react-router-dom";
+import { Formik } from "formik";
+import * as yup from "yup";
 const Container = styled.div`
   background-color: #191919;
   padding: 4rem 2rem 1rem 2rem;
@@ -221,13 +223,46 @@ const Footer = () => {
             <Text>
               Get E-mail updates about our latest shop and special offers.
             </Text>
-            <InputWrapper>
-              <Input type="text" placeholder="Enter Your mail" />
-              <Button>Subscribe</Button>
-            </InputWrapper>
+            <Formik
+              initialValues={{
+                email: "",
+              }}
+              onSubmit={(values) => {
+                console.log(values);
+              }}
+              validationSchema={schema}
+            >
+              {({ handleChange, handleSubmit, values, errors, touched }) => (
+                <form onSubmit={handleSubmit}>
+                  <InputWrapper>
+                    <Input
+                      value={values.email}
+                      type="text"
+                      name="email"
+                      placeholder="Enter Your mail"
+                      onChange={handleChange}
+                    />
+                    <Button type="submit">Subscribe</Button>
+                  </InputWrapper>
+                  {errors.email && touched.email && (
+                    <small
+                      className="text-danger "
+                      style={{
+                        position: "relative",
+                        top: "-10px",
+                        fontWeight: "600",
+                      }}
+                    >
+                      {errors.email}
+                    </small>
+                  )}
+                </form>
+              )}
+            </Formik>
           </Box>
         </Box>
       </Wrapper>
+
       <Info>
         <img src={Logo} width="200" />
         <CopyRight>
@@ -238,5 +273,8 @@ const Footer = () => {
     </Container>
   );
 };
+const schema = yup.object().shape({
+  email: yup.string().email("Not an valid email").required("Email is required"),
+});
 
 export default Footer;
