@@ -163,7 +163,7 @@ const Preview = () => {
               </>
             )}
           </BlogWrapper>
-          <CommentBox />
+          <CommentBox id={data?.id} />
         </div>
         <SideBar />
       </Container>

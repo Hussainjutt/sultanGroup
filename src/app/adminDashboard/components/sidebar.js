@@ -93,7 +93,20 @@ const NestedMenu = styled.div`
 `;
 const Main = styled.div`
   &:hover .custom-according {
+    overflow-y: auto;
     max-height: 200px;
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #ccc;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #1c1c1c;
+      border-radius: 4px;
+    }
   }
   &:hover .list_item {
     color: white !important;
@@ -122,7 +135,8 @@ const Menu = [
     subMenu: [
       { title: "Create Blog", route: "/create-blog" },
       { title: "All Blogs", route: "/all-blogs" },
-      { title: "Draft", route: "/blogs-draft" },
+      { title: "Drafts", route: "/blogs-draft" },
+      { title: "Comments", route: "/blogs-comments" },
     ],
   },
   {

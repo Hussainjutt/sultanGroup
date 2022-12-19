@@ -51,7 +51,7 @@ const Index = () => {
     };
   }, [category]);
   return (
-    <DashBoard heading={"Draft"}>
+    <DashBoard heading={"Blogs/Draft"}>
       <Container>
         <div className="d-flex justify-content-between align-items-center mb-3">
           <SearchBar setCatagory={setCatagory} />

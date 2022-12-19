@@ -9,6 +9,7 @@ const Box = styled.div`
   padding: 1rem 2rem 2rem 2rem;
   position: relative;
   border-radius: 0.75rem;
+  background-color: #fff;
 `;
 const Text = styled.p`
   line-height: 22px;

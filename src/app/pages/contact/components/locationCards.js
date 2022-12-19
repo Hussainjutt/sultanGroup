@@ -39,6 +39,7 @@ const Card = styled.div`
   box-shadow: 0px 0px 8px 2px rgba(0, 0, 0, 0.17);
   border-radius: 0.75rem;
   overflow: hidden;
+  background-color: #fff;
 `;
 const Box = styled.h5`
   display: flex;

@@ -173,6 +173,20 @@ const Header = ({ setOpen }) => {
     window.addEventListener("scroll", onScroll);
     window.addEventListener("load", onScroll);
   }, []);
+  useEffect(() => {
+    // if (offset > 44) {
+    //   let el = document.getElementsByClassName("goog-te-banner-frame");
+    //   if (el) {
+    //     el[0].style.display = "none";
+    //   }
+    // } else {
+    //   let el = document.getElementsByClassName("goog-te-banner-frame");
+    //   if (el) {
+    //     el[0].style.display = "unset";
+    //     el[0].style.visibility = "visible";
+    //   }
+    // }
+  }, [offset]);
   return (
     <Container
       onMouseLeave={() => {

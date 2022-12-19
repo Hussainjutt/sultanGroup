@@ -1,6 +1,25 @@
-import React from "react";
-import { Button, Col, FloatingLabel, Form, Row } from "react-bootstrap";
+import { Formik } from "formik";
+import React, { useState } from "react";
+import {
+  Button,
+  Col,
+  FloatingLabel,
+  Form,
+  Row,
+  Spinner,
+} from "react-bootstrap";
+import { toast } from "react-toastify";
 import styled from "styled-components";
+import * as yup from "yup";
+import {
+  arrayUnion,
+  doc,
+  getDoc,
+  Timestamp,
+  updateDoc,
+} from "firebase/firestore";
+import { db } from "../../../../firebase";
+import { v4 as uid } from "uuid";
 
 const Container = styled.div`
   background-color: #fff;
@@ -26,36 +45,125 @@ const H1 = styled.h1`
     line-height: 53px;
   }
 `;
-const CommentBox = () => {
+const Error = styled.small`
+  color: red;
+`;
+const CommentBox = ({ id }) => {
+  const [loader, setLoader] = useState(false);
   return (
     <Container>
       <H1>Leave a Comment</H1>
-      <FloatingLabel
-        controlId="floatingInput"
-        label="Write Comment"
-        className="mb-3"
+      <Formik
+        initialValues={{
+          name: "",
+          email: "",
+          comment: "",
+        }}
+        onSubmit={async (values, { resetForm }) => {
+          if (id) {
+            setLoader(true);
+            try {
+              let data = await getDoc(doc(db, "blogs", "allBlogs"));
+              let i = data.data().data.findIndex((el) => {
+                return el.id === id;
+              });
+              let Data = data.data().data.filter((el) => el.id !== id);
+              Data.splice(i, 0, {
+                ...data.data().data[i],
+                comments: [
+                  ...data.data().data[i].comments,
+                  {
+                    id: uid(),
+                    date: Timestamp.now(),
+                    ...values,
+                  },
+                ],
+              });
+              await updateDoc(doc(db, "blogs", "allBlogs"), {
+                data: [...Data],
+              });
+              toast.success("Successfully sent");
+              setTimeout(() => {
+                setLoader(false);
+                resetForm();
+              }, 1000);
+            } catch (error) {
+              toast.error(error.message);
+              setLoader(false);
+            }
+          }
+        }}
+        validationSchema={schema}
       >
-        <Form.Control
-          as="textarea"
-          style={{ resize: "none", height: "130px" }}
-          placeholder="name@example.com"
-        />
-      </FloatingLabel>
-      <Row className="mb-4">
-        <Col className="col-12 col-sm-6">
-          <FloatingLabel controlId="floatingInput" label="Name">
-            <Form.Control type="text" placeholder="name@example.com" />
-          </FloatingLabel>
-        </Col>
-        <Col className="col-12 col-sm-6">
-          <FloatingLabel controlId="floatingPassword" label="Email address">
-            <Form.Control type="email" placeholder="Password" />
-          </FloatingLabel>
-        </Col>
-      </Row>
-      <Button variant="dark w-50">Submit</Button>
+        {({ handleChange, handleSubmit, values, touched, errors }) => (
+          <form onSubmit={handleSubmit}>
+            <FloatingLabel
+              controlId="floatingInput"
+              label="Write Comment"
+              className="mb-3"
+            >
+              <Form.Control
+                as="textarea"
+                style={{ resize: "none", height: "130px" }}
+                placeholder="name@example.com"
+                value={values.comment}
+                onChange={handleChange}
+                name="comment"
+              />
+              {errors.comment && touched.comment && (
+                <Error>{errors.comment}</Error>
+              )}
+            </FloatingLabel>
+            <Row className="mb-4">
+              <Col className="col-12 col-sm-6">
+                <FloatingLabel controlId="floatingInput" label="Name">
+                  <Form.Control
+                    type="text"
+                    placeholder="name@example.com"
+                    value={values.name}
+                    onChange={handleChange}
+                    name="name"
+                  />
+                  {errors.name && touched.name && <Error>{errors.name}</Error>}
+                </FloatingLabel>
+              </Col>
+              <Col className="col-12 col-sm-6">
+                <FloatingLabel
+                  controlId="floatingPassword"
+                  label="Email address"
+                >
+                  <Form.Control
+                    type="email"
+                    placeholder="email"
+                    value={values.email}
+                    onChange={handleChange}
+                    name="email"
+                  />
+                  {errors.email && touched.email && (
+                    <Error>{errors.email}</Error>
+                  )}
+                </FloatingLabel>
+              </Col>
+            </Row>
+            <Button variant="dark w-50" type="submit" disabled={loader}>
+              {loader ? (
+                <>
+                  <Spinner variant={"light"} animation="border" size="sm" />{" "}
+                  Sending
+                </>
+              ) : (
+                "Send"
+              )}
+            </Button>
+          </form>
+        )}
+      </Formik>
     </Container>
   );
 };
-
+const schema = yup.object().shape({
+  email: yup.string().required("Email is required").email("Not an valid email"),
+  name: yup.string().required("Name is required"),
+  comment: yup.string().required("Comment is required"),
+});
 export default CommentBox;

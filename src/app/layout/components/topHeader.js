@@ -10,6 +10,7 @@ import styled from "styled-components";
 import { IoIosMail } from "react-icons/io";
 import { IoLanguage } from "react-icons/io5";
 import { MdLocalPhone } from "react-icons/md";
+import Translate from "../../components/translate";
 
 const Container = styled.div`
   width: 100%;
@@ -85,15 +86,16 @@ const TopHeader = () => {
             </Link>
           ))}
         </Box>
-        <p style={{ position: "relative", padding: "6px" }}>
-          <IoLanguage
-            style={{
-              position: "absolute",
-              top: "4px",
-              fontSize: "22px",
-              cursor: "pointer",
-            }}
-          />
+        <p style={{ position: "relative", padding: "6px", width: "150px" }}>
+          {/* <IoLanguage */}
+          {/* //   style={{ */}
+          {/* //     position: "absolute",
+          //     top: "4px",
+          //     fontSize: "22px",
+          //     cursor: "pointer",
+          //   }}
+          // /> */}
+          <Translate />
         </p>
       </Wrapper>
     </Container>

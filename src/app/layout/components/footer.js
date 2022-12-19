@@ -12,6 +12,16 @@ import Bg from "../../assets/image/backgrounds/footer.png";
 import { useNavigate } from "react-router-dom";
 import { Formik } from "formik";
 import * as yup from "yup";
+import { toast } from "react-toastify";
+import { v4 as uid } from "uuid";
+import {
+  arrayUnion,
+  doc,
+  onSnapshot,
+  Timestamp,
+  updateDoc,
+} from "firebase/firestore";
+import { db } from "../../../firebase";
 const Container = styled.div`
   background-color: #191919;
   padding: 4rem 2rem 1rem 2rem;
@@ -227,8 +237,22 @@ const Footer = () => {
               initialValues={{
                 email: "",
               }}
-              onSubmit={(values) => {
-                console.log(values);
+              onSubmit={async (values, { resetForm }) => {
+                try {
+                  updateDoc(doc(db, "people", "newsLetters"), {
+                    data: arrayUnion({
+                      ...values,
+                      date: Timestamp.now(),
+                      key: uid(),
+                    }),
+                  });
+                  toast.success("Email submitted successfully");
+                  setTimeout(() => {
+                    resetForm();
+                  }, 1000);
+                } catch (error) {
+                  toast.error(error.message);
+                }
               }}
               validationSchema={schema}
             >

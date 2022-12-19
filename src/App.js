@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Spinner } from "react-bootstrap";
+import { ToastContainer } from "react-toastify";
 import Home from "./app/pages/home";
-import Prodeucts from "./app/pages/products";
+import Products from "./app/pages/products";
 import AboutUs from "./app/pages/aboutUs";
 import Services from "./app/pages/services";
 import Contact from "./app/pages/contact";
@@ -12,6 +14,7 @@ import CreateBlog from "./app/pages/blogsInfo/createBlog";
 import AllBlogs from "./app/pages/blogsInfo/AllBlogs";
 import BlogsDraft from "./app/pages/blogsInfo/draft";
 import CreateProduct from "./app/pages/productsInfo/createProduct";
+import BlogsComment from "./app/pages/blogsInfo/comments";
 import Login from "./app/pages/auth/login";
 import Profile from "./app/pages/profile";
 import AllProducts from "./app/pages/productsInfo/allProducts";
@@ -21,9 +24,7 @@ import TermsConditions from "./app/pages/terms&conditions";
 import Faqs from "./app/pages/faqs";
 import PrivacyPolicy from "./app/pages/privacyPolicy";
 import ContactList from "./app/pages/contactList";
-import { Spinner } from "react-bootstrap";
-import { ToastContainer } from "react-toastify";
-import { useEffect } from "react";
+import NewsLetters from "./app/pages/newsletters";
 
 const App = () => {
   const [load, setLoad] = useState(true);
@@ -50,7 +51,7 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/products" element={<Prodeucts />} />
+          <Route path="/products" element={<Products />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/services:type" element={<Services />} />
           <Route path="/contact" element={<Contact />} />
@@ -158,6 +159,37 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/news-letters"
+            element={
+              <ProtectedRoute>
+                <NewsLetters />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/blogs-comments"
+            element={
+              <ProtectedRoute>
+                <BlogsComment />
+              </ProtectedRoute>
+            }
+          />
+          {/* <Route path='*' element={
+             <div
+             style={{
+               width: "100%",
+               height: "100vh",
+               display: "flex",
+               justifyContent: "center",
+               alignItems: "center",
+               padding: "0 2%",
+             }}
+           >
+             {" "}
+             <img src={Img} style={{ display: "block" }} className="col-12 col-sm-6" />
+           </div>
+          }/> */}
         </Routes>
       </BrowserRouter>
     </>

@@ -41,7 +41,6 @@ const ReactApp = () => {
         padding: "0 2%",
       }}
     >
-      {" "}
       <img src={Img} style={{ display: "block" }} className="col-12 col-sm-6" />
     </div>
   );
