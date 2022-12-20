@@ -65,6 +65,30 @@ const Link = styled.p`
   border-bottom: 1px solid #27be11;
   padding: 4px 0;
 `;
+const BigBox = styled.div`
+  max-height: 300px;
+  overflow-y: auto;
+  width: 100%;
+  border: 1px solid #ccc;
+  position: absolute;
+  background: #fff;
+  z-index: 20;
+  padding: 5px;
+  border-radius: 4px;
+  top: 40px;
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #ccc;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #1c1c1c;
+    border-radius: 4px;
+  }
+`;
 const SideBar = () => {
   const [active, setActive] = useState(null);
   const [data, setData] = useState([]);
@@ -73,29 +97,25 @@ const SideBar = () => {
   const [blogs, setBlogs] = useState({ data: [], show: false });
   const [loader, setLoader] = useState(false);
   const navigate = useNavigate();
-  const getBlogs = async (blog) => {
-    try {
-      setLoader(true);
-      let data = await getDoc(doc(db, "blogs", "allBlogs"));
-      setBlogs({
-        ...blogs,
-        data: data
-          .data()
-          ?.data.filter(
-            (el, i) => el.title?.toLowerCase() === blog?.toLowerCase()
-          ),
-        show: true,
-      });
-      setTimeout(() => {
-        setLoader(false);
-      }, 1000);
-    } catch (error) {
-      toast.error(error.message);
-    }
-  };
   useEffect(() => {
     const unSub = onSnapshot(doc(db, "blogs", "allBlogs"), (doc) => {
       setData(doc.data().data);
+      if (search) {
+        let dummy = [];
+        for (let i = 0; i < doc.data().data.length; i++) {
+          if (
+            doc
+              .data()
+              .data[i].title.toLowerCase()
+              .includes(search.toLowerCase())
+          ) {
+            dummy.push(doc.data().data[i]);
+          }
+        }
+        setBlogs({ ...blogs, show: true, data: dummy });
+      } else {
+        setBlogs({ ...blogs, show: false, data: [] });
+      }
     });
     const UnSub = onSnapshot(doc(db, "blogs", "category"), (doc) => {
       setCategory(doc?.data()?.data);
@@ -104,7 +124,7 @@ const SideBar = () => {
       unSub();
       UnSub();
     };
-  }, []);
+  }, [search]);
   return (
     <Container>
       <H1>Search Here</H1>
@@ -115,32 +135,22 @@ const SideBar = () => {
             aria-label="Search here"
             aria-describedby="basic-addon2"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              console.log(e.target.value);
+            }}
           />
           <Button
             variant="info"
             className="text-white"
-            onClick={() => getBlogs(search)}
+            onClick={() => setSearch(search)}
             id="button-addon2"
           >
             Search
           </Button>
         </InputGroup>
         {blogs.show && (
-          <div
-            style={{
-              width: "100%",
-              maxWidth: "300px",
-              overflowY: "auto",
-              border: "1px solid #ccc",
-              position: "absolute",
-              background: "#fff",
-              Zindex: 20,
-              padding: "5px",
-              borderRadius: "4px",
-              top: "40px",
-            }}
-          >
+          <BigBox>
             <FaWindowClose
               style={{
                 position: "relative",
@@ -180,7 +190,7 @@ const SideBar = () => {
                       objectFit: "fill",
                     }}
                   />{" "}
-                  <p className="m-0">
+                  <p className="m-0 position-relative w-100">
                     <p
                       style={{
                         display: "-webkit-box",
@@ -194,7 +204,14 @@ const SideBar = () => {
                     >
                       {el?.title}
                     </p>
-                    <small style={{ float: "right", fontWeight: "bold" }}>
+                    <small
+                      style={{
+                        fontWeight: "bold",
+                        fontWeight: "bold",
+                        position: "absolute",
+                        right: "0",
+                      }}
+                    >
                       {el?.category}
                     </small>
                   </p>
@@ -203,7 +220,7 @@ const SideBar = () => {
             ) : (
               <small>no data found</small>
             )}
-          </div>
+          </BigBox>
         )}
       </div>
       <br />

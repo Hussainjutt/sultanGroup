@@ -32,10 +32,11 @@ const Text = styled.span`
   color: #4caf50;
 `;
 const Heading = styled.h1`
-  font-weight: 300;
+  font-weight: 600;
   font-size: 14px;
   line-height: 21px;
   color: #7b809a;
+  padding: 0.4rem;
   margin-bottom: 0;
 `;
 const P2 = styled.p`
@@ -83,11 +84,7 @@ const LogoContainer = styled.div`
     font-size: 25px;
   }
 `;
-const Index = (props) => {
-  const [variant, setVariant] = useState("");
-  useEffect(() => {
-    setVariant(props.variant);
-  }, [variant]);
+const Index = ({ variant, h1, h2, p1, p2 }) => {
   return (
     <>
       <Container>
@@ -108,15 +105,15 @@ const Index = (props) => {
             )}
           </LogoContainer>
           <div>
-            <Heading>{props.h1}</Heading>
-            <P2>{props.p1}</P2>
+            <Heading>{h1}</Heading>
+            <P2>{p1}</P2>
           </div>
         </Body>
         <hr />
         <div>
           <P>
-            <Text> {props.h2} </Text>
-            {props.p2}
+            <Text> {h2} </Text>
+            {p2}
           </P>
         </div>
       </Container>

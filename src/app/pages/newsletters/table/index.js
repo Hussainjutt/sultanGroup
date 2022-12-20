@@ -113,14 +113,13 @@ const Index = () => {
         });
       }
       if (search) {
-        setData(
-          arr.filter(
-            (el) =>
-              el.email.slice(0, el.email.search("@")).toLowerCase() ===
-                search.toLowerCase() ||
-              el.email.toLowerCase() === search.toLowerCase()
-          )
-        );
+        let dummy = [];
+        for (let i = 0; i < arr.length; i++) {
+          if (arr[i].email.toLowerCase().includes(search.toLowerCase())) {
+            dummy.push(arr[i]);
+          }
+        }
+        setData(dummy.reverse());
       } else {
         setData(arr.reverse());
       }
@@ -138,7 +137,7 @@ const Index = () => {
         size="large"
         onSearch={(e) => setSearch(e)}
         onChange={(e) => {
-          e.target.value === "" && setSearch("");
+          setSearch(e.target.value);
         }}
         className="my-3 w-25"
       />

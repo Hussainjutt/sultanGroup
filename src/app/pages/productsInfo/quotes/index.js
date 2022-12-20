@@ -10,7 +10,7 @@ const Index = () => {
   const [loader, setLoader] = useState(false);
   const [search, setSearch] = useState("");
   useEffect(() => {
-    const blogs = onSnapshot(doc(db, "blogs", "allBlogs"), (doc) => {
+    const unSub = onSnapshot(doc(db, "products", "allProducts"), (doc) => {
       setLoader(true);
       if (category || search) {
         let dummy = doc.data().data;
@@ -34,21 +34,17 @@ const Index = () => {
       }
       setTimeout(() => {
         setLoader(false);
-      }, 1200);
+      }, 1400);
     });
     return () => {
-      blogs();
+      unSub();
     };
   }, [category, search]);
   return (
-    <Dashboard heading={"Blogs/Comments"}>
+    <Dashboard heading={"Products/Quotes"}>
       <div className="p-4">
         <div className="mb-4">
-          <SearchBar
-            setCatagory={setCatagory}
-            search={search}
-            setSearch={setSearch}
-          />
+          <SearchBar setCatagory={setCatagory} setSearch={setSearch} />
         </div>
         <List data={data} isLoading={loader} />
       </div>

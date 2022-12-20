@@ -19,6 +19,7 @@ import Login from "./app/pages/auth/login";
 import Profile from "./app/pages/profile";
 import AllProducts from "./app/pages/productsInfo/allProducts";
 import ProductDraft from "./app/pages/productsInfo/draft";
+import Quotes from "./app/pages/productsInfo/quotes";
 import Gallery from "./app/pages/gallery";
 import TermsConditions from "./app/pages/terms&conditions";
 import Faqs from "./app/pages/faqs";
@@ -47,7 +48,7 @@ const App = () => {
     />
   ) : (
     <>
-      <ToastContainer autoClose={1000} theme="colored" pauseOnHover={true} />
+      <ToastContainer autoClose={1000} theme="dark" pauseOnHover={true} />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -94,6 +95,14 @@ const App = () => {
             }
           />
           <Route
+            path="/blogs-comments"
+            element={
+              <ProtectedRoute>
+                <BlogsComment />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/edit-blog/:id"
             element={
               <ProtectedRoute>
@@ -134,6 +143,14 @@ const App = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/products-quotes"
+            element={
+              <ProtectedRoute>
+                <Quotes />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/login" element={<Login />} />
           <Route
             path="/profile"
@@ -164,14 +181,6 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <NewsLetters />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/blogs-comments"
-            element={
-              <ProtectedRoute>
-                <BlogsComment />
               </ProtectedRoute>
             }
           />

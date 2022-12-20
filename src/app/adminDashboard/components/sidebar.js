@@ -147,6 +147,7 @@ const Menu = [
       { title: "Create Product", route: "/create-product" },
       { title: "All Products", route: "/all-products" },
       { title: "Draft", route: "/products-draft" },
+      { title: "Quotes", route: "/products-quotes" },
     ],
   },
   {

@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Modal, Spinner } from "react-bootstrap";
 import { IoExpandOutline } from "react-icons/io5";
 import styled from "styled-components";
-import Img1 from "../../../assets/image/products/1.png";
-import Img2 from "../../../assets/image/products/2.jpg";
+import QuotePopUp from "./quotePopUp";
 import { FcInfo } from "react-icons/fc";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../../../../firebase";
@@ -99,12 +98,15 @@ const Prev = styled.img`
   border-radius: 9px;
   width: 100%;
   border: 1px solid #ccc;
+  max-height: 300px;
+  object-fit: cover;
 `;
 const Product = ({ category }) => {
   const [show, setShow] = useState(null);
   const [open, setOpen] = useState({ data: {}, show: false });
   const [data, setData] = useState([]);
   const [Loader, setLoader] = useState(false);
+  const [modal, setModal] = useState({ is: false, id: "" });
   const getDate = (data) => {
     let string = "";
     if (data) {
@@ -125,9 +127,14 @@ const Product = ({ category }) => {
           ?.data?.filter(
             (el) => el?.category?.toLowerCase() === category?.toLowerCase()
           );
-        setData(dummy);
+        setData(dummy.reverse());
       } else {
-        setData(doc?.data()?.data.filter((el) => el.isDraft === false));
+        setData(
+          doc
+            ?.data()
+            ?.data.filter((el) => el.isDraft === false)
+            .reverse()
+        );
       }
       setTimeout(() => {
         setLoader(false);
@@ -197,22 +204,29 @@ const Product = ({ category }) => {
             overflowY: "auto",
           }}
         >
-          <Prev src={open?.data?.image} />
-
-          <div>
-            <h3 style={{ color: "#000" }}>
-              Description <FcInfo />{" "}
-            </h3>
+          <div className="d-flex justify-content-between">
+            <Text>{getDate(open?.data?.date?.toDate())}</Text>
+            <p className="m-0">{open?.data?.category}</p>
+          </div>
+          <div className="p-3 pt-0">
+            <Prev src={open?.data?.image} />
+          </div>
+          <div className="p-3">
             {open?.data?.content && (
               <div dangerouslySetInnerHTML={{ __html: open?.data?.content }} />
             )}
           </div>
         </Modal.Body>
-        <Modal.Footer style={{ justifyContent: "space-between" }}>
-          <Text>{getDate(open?.data?.date?.toDate())}</Text>
-          <p>{open?.data?.category}</p>
+        <Modal.Footer>
+          <Button
+            variant="primary"
+            onClick={() => setModal({ ...modal, id: open.data?.id, is: true })}
+          >
+            Get A Quote
+          </Button>
         </Modal.Footer>
       </Modal>
+      <QuotePopUp open={modal} setOpen={setModal} />
     </Container>
   );
 };

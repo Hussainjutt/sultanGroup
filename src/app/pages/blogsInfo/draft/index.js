@@ -26,14 +26,27 @@ const Index = () => {
   const [category, setCatagory] = useState("");
   const [data, setData] = useState([]);
   const [loader, setLoader] = useState(false);
+  const [search, setSearch] = useState("");
   useEffect(() => {
     const unSub = onSnapshot(doc(db, "blogs", "allBlogs"), (doc) => {
       setLoader(true);
-      if (category) {
-        let dummy = doc
-          .data()
-          .data?.filter((el) => el?.category?.toLowerCase() === category);
-        setData(dummy.reverse());
+      if (category || search) {
+        let dummy = doc.data().data;
+        if (category) {
+          dummy = dummy.filter(
+            (el) => el?.category?.toLowerCase() === category
+          );
+        }
+        if (search) {
+          let arr = [];
+          for (let i = 0; i < dummy.length; i++) {
+            if (dummy[i].title.toLowerCase().includes(search.toLowerCase())) {
+              arr.push(dummy[i]);
+            }
+          }
+          dummy = arr;
+        }
+        setData(dummy.filter((el) => el?.isDraft === true).reverse());
       } else {
         setData(
           doc
@@ -49,12 +62,12 @@ const Index = () => {
     return () => {
       unSub();
     };
-  }, [category]);
+  }, [category, search]);
   return (
     <DashBoard heading={"Blogs/Draft"}>
       <Container>
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <SearchBar setCatagory={setCatagory} />
+          <SearchBar setCatagory={setCatagory} setSearch={setSearch} />
           <Button variant="primary" onClick={() => navigate("/create-blog")}>
             Create Blog
           </Button>

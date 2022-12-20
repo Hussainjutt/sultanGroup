@@ -143,16 +143,17 @@ const Index = () => {
       }
       setData(arr);
       if (search) {
-        let q1 = arr.filter(
-          (el) =>
-            el.email.slice(0, el.email.search("@")).toLowerCase() ===
-              search.toLowerCase() ||
-            el.email.toLowerCase() === search.toLowerCase()
-        );
-        let q2 = arr.filter(
-          (el) => el.name.toLowerCase() === search.toLowerCase()
-        );
-        setData(q1.length === 0 ? q2 : q1);
+        let dummy = [];
+        for (let i = 0; i < arr.length; i++) {
+          if (
+            arr[i].name.toLowerCase().includes(search.toLowerCase()) ||
+            arr[i].email.toLowerCase().includes(search.toLowerCase()) ||
+            arr[i].tel.toLowerCase().includes(search.toLowerCase())
+          ) {
+            dummy.push(arr[i]);
+          }
+        }
+        setData(dummy.reverse());
       } else {
         setData(arr.reverse());
       }
@@ -170,7 +171,7 @@ const Index = () => {
         size="large"
         onSearch={(e) => setSearch(e)}
         onChange={(e) => {
-          e.target.value === "" && setSearch("");
+          setSearch(e.target.value);
         }}
         className="my-3 w-25"
       />

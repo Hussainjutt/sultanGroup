@@ -2,13 +2,22 @@ import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { Button, Modal, Spinner } from "react-bootstrap";
-import { BsFillReplyAllFill } from "react-icons/bs";
+import {
+  BsChatSquareQuoteFill,
+  BsFillReplyAllFill,
+  BsTelephone,
+} from "react-icons/bs";
+import { HiOutlineHome } from "react-icons/hi";
+import { HiOutlineChatBubbleBottomCenterText } from "react-icons/hi2";
 import { FaCommentAlt, FaComments } from "react-icons/fa";
+import { SiOpenstreetmap } from "react-icons/si";
+import { GiWorld } from "react-icons/gi";
 import { CiSquareRemove } from "react-icons/ci";
 import styled from "styled-components";
 import { db } from "../../../../../firebase";
 import { Popconfirm } from "antd";
 import { toast } from "react-toastify";
+import { MdOutlineEmail } from "react-icons/md";
 
 const Container = styled.div`
   width: 100%;
@@ -52,30 +61,20 @@ const Counts = styled.small`
   border-radius: 11px;
   font-size: 11px;
   position: relative;
-  top: -10px;
+  top: -18px;
   left: -15px;
 `;
 const Comment = styled.div`
   background-color: #fafafa;
   padding: 1rem;
   margin: 0.5rem 0;
-  border: 1px solid #ccc;
+  border: 1px solid #eff0f2;
   &:hover {
     transition: 0.4s;
     background-color: #eff0f2;
   }
 `;
-const Avatar = styled.span`
-  background-color: ${(props) => props.bg};
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-`;
-const Name = styled.span`
+const Name = styled.h4`
   font-weight: 600;
 `;
 const Email = styled.a`
@@ -85,10 +84,7 @@ const Email = styled.a`
   color: #00a8e8;
   font-size: 25px;
 `;
-const Text = styled.p`
-  padding: 1rem 0.4rem;
-  font-size: 14px;
-`;
+const Text = styled.span``;
 const Body = styled(Modal.Body)`
   max-height: 70vh;
   overflow-y: auto;
@@ -104,6 +100,20 @@ const Body = styled(Modal.Body)`
     background: #1c1c1c;
     border-radius: 4px;
   }
+`;
+const Box = styled.div`
+  margin: 0.5rem 0;
+  display: flex;
+  justtify-content: flex-start;
+  grid-gap: 0.5rem;
+  svg {
+    font-size: 25px;
+    color: #26c00c;
+  }
+`;
+const Link = styled.a`
+  text-decoration: none;
+  color: #00a8e8;
 `;
 const List = ({ data = [], isLoading }) => {
   const [show, setShow] = useState({
@@ -131,13 +141,7 @@ const List = ({ data = [], isLoading }) => {
     }
     return string;
   };
-  const randColor = () => {
-    const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-    document.body.style.backgroundColor = "#" + randomColor;
-    let color = "#" + randomColor;
-    return color;
-  };
-  const handleDelete = async (blog, id) => {
+  const handleDelete = async (prod, id) => {
     setLoading(true);
     function removeObjectWithId(arr, id) {
       const objWithIdIndex = arr.findIndex((obj) => obj.id === id);
@@ -145,19 +149,19 @@ const List = ({ data = [], isLoading }) => {
       return arr;
     }
     try {
-      let data = await getDoc(doc(db, "blogs", "allBlogs"));
+      let data = await getDoc(doc(db, "products", "allProducts"));
       let arr = data;
-      arr = arr.data().data.filter((el) => el.id === blog);
-      let comments = removeObjectWithId(arr[0].comments, id);
+      arr = arr.data().data.filter((el) => el.id === prod);
+      let quots = removeObjectWithId(arr[0].quots, id);
       let i = data.data().data.findIndex((el) => {
-        return el.id === blog;
+        return el.id === prod;
       });
-      let Data = data.data().data.filter((el) => el.id !== blog);
+      let Data = data.data().data.filter((el) => el.id !== prod);
       Data.splice(i, 0, {
         ...data.data().data[i],
-        comments: [...comments],
+        quots: [...quots],
       });
-      await updateDoc(doc(db, "blogs", "allBlogs"), {
+      await updateDoc(doc(db, "products", "allProducts"), {
         data: [...Data],
       });
       setTimeout(() => {
@@ -174,13 +178,13 @@ const List = ({ data = [], isLoading }) => {
     }, 1000);
   };
   useEffect(() => {
-    const unSub = onSnapshot(doc(db, "blogs", "allBlogs"), (doc) => {
+    const unSub = onSnapshot(doc(db, "products", "allProducts"), (doc) => {
       setLoad(true);
       let data = doc.data().data.filter((el) => el.id === show.id);
       if (data.length === 0) {
         setShow({ ...show, data: [], id: "", open: false });
       } else {
-        setShow({ ...show, data: data[0].comments.reverse() });
+        setShow({ ...show, data: data[0].quots.reverse() });
       }
       setTimeout(() => {
         setLoad(false);
@@ -197,7 +201,7 @@ const List = ({ data = [], isLoading }) => {
           <Spinner variant="dark" />
         </div>
       ) : data.length === 0 ? (
-        <h1 className="text-center">There no blogs</h1>
+        <h1 className="text-center">There no quotes</h1>
       ) : (
         data.map((el, i) => (
           <Item
@@ -215,7 +219,7 @@ const List = ({ data = [], isLoading }) => {
               </div>
             </div>
             <p className="m-0">
-              <FaComments
+              <BsChatSquareQuoteFill
                 style={{
                   color: "#28BD11",
                   fontSize: "35px",
@@ -223,11 +227,11 @@ const List = ({ data = [], isLoading }) => {
               />
               <Counts
                 style={{
-                  padding: el?.comments?.length <= 9 && "4px 7px 2px 7px",
+                  padding: el?.quots?.length <= 9 && "4px 7px 2px 7px",
                 }}
               >
-                {el?.comments?.length}
-                {el?.comments?.length >= 10 && <sup>+</sup>}
+                {el?.quots?.length}
+                {el?.quots?.length >= 10 && <sup>+</sup>}
               </Counts>
             </p>
           </Item>
@@ -247,7 +251,7 @@ const List = ({ data = [], isLoading }) => {
               <Spinner variant="info" />
             </div>
           ) : show.data?.length === 0 ? (
-            <h1 className="text-center">No comments yet </h1>
+            <h1 className="text-center">No quotes yet </h1>
           ) : (
             show.data?.map((el, i) => (
               <Comment className="position-relative rounded" key={i}>
@@ -276,16 +280,29 @@ const List = ({ data = [], isLoading }) => {
                     }}
                   />
                 </Popconfirm>
-                <div className="d-flex justify-content-between align-items-center">
-                  <div className="d-flex justify-content-start align-items-center gap-2">
-                    <Avatar bg={randColor()}>
-                      {el.name?.charAt(0)?.toUpperCase()}
-                    </Avatar>
-                    <Name>{el?.name}</Name>
-                  </div>
-                  <span style={{ fontSize: "12px" }}>{getDate(el?.date)}</span>
-                </div>
-                <Text className="m-0">{el?.comment}</Text>
+                <Name className="my-1">
+                  {el?.first_name + " " + el?.last_name}
+                </Name>
+                <Box>
+                  <MdOutlineEmail />{" "}
+                  <Link href={`mailto:${el?.email}`}>{el?.email}</Link>
+                </Box>
+                <Box>
+                  <BsTelephone /> <Link href={`tel:${el?.tel}`}>{el?.tel}</Link>
+                </Box>
+                <Box>
+                  <HiOutlineHome />
+                  <Text> {el?.address}</Text>
+                </Box>
+                <Box>
+                  <GiWorld />
+                  <Text> {el?.country}</Text>
+                </Box>
+                <Box>
+                  <HiOutlineChatBubbleBottomCenterText />
+                  <Text className="m-0">{el?.message}</Text>
+                </Box>
+                <small>{getDate(el?.date)}</small>
               </Comment>
             ))
           )}

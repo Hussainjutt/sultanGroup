@@ -6,7 +6,7 @@ import { MdDeleteOutline } from "react-icons/md";
 import styled from "styled-components";
 import { Button, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { Popconfirm } from "antd";
+import { BsChatQuote } from "react-icons/bs";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../../../firebase";
 import { toast } from "react-toastify";
@@ -180,7 +180,7 @@ const BlogCard = ({ data }) => {
         <Footer>
           <Box className="d-flex justify-content-start  gap-3">
             <span>
-              <AiOutlineComment
+              <BsChatQuote
                 style={{
                   color: "#00A8E8",
                   fontSize: "20px",

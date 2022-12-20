@@ -137,7 +137,7 @@ const Blogs = () => {
     const unSub = onSnapshot(doc(db, "blogs", "allBlogs"), (doc) => {
       setLoader(true);
       if (empty) {
-        setData(doc?.data()?.data);
+        setData(doc?.data()?.data.reverse());
       } else {
         if (category) {
           let q = category?.category?.slice(1)?.toLowerCase();
@@ -148,8 +148,12 @@ const Blogs = () => {
             );
           setData(dummy.reverse());
         } else {
-          setData(doc?.data().data.filter((el) => el.isDraft === false));
-          console.log("hi");
+          setData(
+            doc
+              ?.data()
+              .data.filter((el) => el.isDraft === false)
+              .reverse()
+          );
         }
       }
       setTimeout(() => {

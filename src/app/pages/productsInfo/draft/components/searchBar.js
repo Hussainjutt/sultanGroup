@@ -92,10 +92,11 @@ const Main = styled.div`
   max-width: 600px;
   position: relative;
 `;
-const SearchBar = ({ setCatagory }) => {
+const SearchBar = ({ setCatagory, setSearch, search }) => {
   const [val, setVal] = useState("Catergoies");
   const [show, setShow] = useState(false);
   const [options, setOptions] = useState([]);
+  const [inp, setInp] = useState("");
   const Select = () => {
     return (
       <Box onClick={() => setShow(!show)}>
@@ -132,12 +133,22 @@ const SearchBar = ({ setCatagory }) => {
       <Container>
         <Select />
         <div></div>
-        <Input type={"text"} placeholder="Search" />
+        <Input
+          type={"text"}
+          placeholder="Search"
+          value={inp}
+          onChange={(e) => {
+            setInp(e.target.value);
+            setSearch(e.target.value);
+          }}
+        />
         <BiSearchAlt2
           style={{
             fontSize: "25px",
             color: "#00A8E8",
+            cursor: "pointer",
           }}
+          onClick={() => setSearch(inp)}
         />
       </Container>
       {show && (
